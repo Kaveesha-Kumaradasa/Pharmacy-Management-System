@@ -1,10 +1,12 @@
 import express from 'express';
-import { getAllMedicines,updateMedicine } from '../controller/med-admin.js';
+import { getAllMedicines,addMedicine,updateMedicine,deleteMedicine } from '../controller/med-admin.js';
 
 const router = express.Router();
 
 router.get('/medicines', getAllMedicines);
-router.post('/medicines/:id', updateMedicine);
+router.delete('/medicines/:id', deleteMedicine);
+router.post('/medicines', addMedicine);
+router.put('/medicines/:id', updateMedicine);
 
 
 export default router;

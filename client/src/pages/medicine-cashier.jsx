@@ -1,59 +1,85 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const Supplier= () => {
-    const [medicines, setMedicines] = useState([]);
+const CashierMedTable = () => {
+  const [medicines, setMedicines] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        axios.get('http://localhost:5000/suppliers')
-            .then(response => {
-                setMedicines(response.data);
-            })
-            .catch(error => {
-                console.error('There was an error fetching the suppliers!', error);
-            });
-    }, []);
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      try {
+        const response = await axios.get('http://localhost:8800/server/med-cashier/medicines');
+        setMedicines(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error('Error fetching medicines', error);
+        setError('Error fetching medicines');
+        setMedicines([]);
+      }
+    };
 
-    return (
-        <div className="container mx-auto mt-8">
-            <div className="flex flex-col">
-                <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
-                        <div className="overflow-hidden">
-                            <table className="min-w-full">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Name
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Address
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Email
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Phone Number
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {medicines.map((supplier) => (
-                                        <tr key={supplier.email}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{supplier.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{supplier.address}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{supplier.email}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{supplier.phone}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+    fetchMedicines();
+  }, []);
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const filteredMedicines = medicines.filter(medicine =>
+    medicine.medicine_name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (error) {
+    return <div className="container mx-auto p-4">Error: {error}</div>;
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Medicine Inventory</h1>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by Medicine Name"
+          value={searchQuery}
+          onChange={handleSearch}
+          className="p-2 border border-gray-400 rounded"
+        />
+      </div>
+      <table className="min-w-full bg-white">
+        <thead>
+          <tr>
+            {['medicine_name', 'rack_no', 'category', 'brand', 'strength', 'type', 'exp_date', 'price_of_sell', 'price_of_buy', 'quantity'].map(key => (
+              <th key={key} className="py-2">
+                {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {filteredMedicines.length > 0 ? (
+            filteredMedicines.map((medicine, index) => (
+              <tr key={index}>
+                <td className="border px-4 py-2">{medicine.medicine_name || 'N/A'}</td>
+                <td className="border px-4 py-2">{medicine.rack_no || 'N/A'}</td>
+                <td className="border px-4 py-2">{medicine.category || 'N/A'}</td>
+                <td className="border px-4 py-2">{medicine.brand || 'N/A'}</td>
+                <td className="border px-4 py-2">{medicine.strength || 'N/A'}</td>
+                <td className="border px-4 py-2">{medicine.type || 'N/A'}</td>
+                <td className="border px-4 py-2">{medicine.exp_date.split('T')[0] || 'N/A'}</td>
+                <td className="border px-4 py-2">{medicine.price_of_sell || 'N/A'}</td>
+                <td className="border px-4 py-2">{medicine.price_of_buy || 'N/A'}</td>
+                <td className="border px-4 py-2">{medicine.quantity || 'N/A'}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td className="border px-4 py-2" colSpan="10">No medicines available</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 };
 
-export default Supplier;
+export default CashierMedTable;

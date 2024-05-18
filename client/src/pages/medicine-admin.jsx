@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const MedicineTable = () => {
+const MedicineAdmin = () => {
   const [medicines, setMedicines] = useState([]);
+  const [formType, setFormType] = useState(''); // 'add' or 'edit'
   const [editingMedicine, setEditingMedicine] = useState(null);
   const [formData, setFormData] = useState({
     medicine_name: '',
@@ -36,6 +37,7 @@ const MedicineTable = () => {
   };
 
   const handleEditClick = (medicine) => {
+    setFormType('edit');
     setEditingMedicine(medicine);
     setFormData({
       medicine_name: medicine.medicine_name,
@@ -50,13 +52,30 @@ const MedicineTable = () => {
     });
   };
 
-  const handleUpdateSubmit = async (e) => {
+  const handleDeleteClick = async (id) => {
+    try {
+      const response = await axios.delete(`http://localhost:8800/server/med-admin/medicines/${id}`);
+      console.log(response.data.message);
+      fetchMedicines();
+    } catch (error) {
+      console.error('Error deleting medicine', error);
+    }
+  };
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (!editingMedicine) return;
 
     try {
-      const response = await axios.put(`http://localhost:8800/server/med-admin/medicines/${editingMedicine.med_id}`, formData);
-      console.log(response.data.message);
+      if (formType === 'add') {
+        const response = await axios.post('http://localhost:8800/server/med-admin/medicines', formData);
+        console.log(response.data.message);
+      } else if (formType === 'edit' && editingMedicine) {
+        const { med_id, category, type, brand } = editingMedicine;
+        const key = `${med_id}-${category}-${type}-${brand}`;
+        const response = await axios.put(`http://localhost:8800/server/med-admin/medicines/${key}`, formData);
+        console.log(response.data.message);
+      }
+      setFormType('');
       setEditingMedicine(null);
       setFormData({
         medicine_name: '',
@@ -71,13 +90,46 @@ const MedicineTable = () => {
       });
       fetchMedicines();
     } catch (error) {
-      console.error('Error updating medicine', error);
+      console.error('Error submitting form', error);
     }
+  };
+
+  const handleAddClick = () => {
+    setFormType('add');
+    setEditingMedicine(null);
+    setFormData({
+      medicine_name: '',
+      category: '',
+      type: '',
+      brand: '',
+      strength: '',
+      exp_date: '',
+      price_of_sell: '',
+      price_of_buy: '',
+      quantity: ''
+    });
+  };
+
+  const handleCancelClick = () => {
+    setFormType('');
+    setEditingMedicine(null);
+    setFormData({
+      medicine_name: '',
+      category: '',
+      type: '',
+      brand: '',
+      strength: '',
+      exp_date: '',
+      price_of_sell: '',
+      price_of_buy: '',
+      quantity: ''
+    });
   };
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Medicine Inventory</h1>
+      <button onClick={handleAddClick} className="bg-blue-500 text-white px-4 py-2 mb-4">Add Medicine</button>
       <table className="min-w-full bg-white">
         <thead>
           <tr>
@@ -95,19 +147,20 @@ const MedicineTable = () => {
         </thead>
         <tbody>
           {medicines.length > 0 ? (
-            medicines.map((medicine, index) => (
-              <tr key={index}>
+            medicines.map((medicine) => (
+              <tr key={`${medicine.med_id}-${medicine.category}-${medicine.type}-${medicine.brand}`}>
                 <td className="border px-4 py-2">{medicine.medicine_name}</td>
                 <td className="border px-4 py-2">{medicine.category}</td>
                 <td className="border px-4 py-2">{medicine.type}</td>
                 <td className="border px-4 py-2">{medicine.brand}</td>
                 <td className="border px-4 py-2">{medicine.strength}</td>
-                <td className="border px-4 py-2">{medicine.exp_date}</td>
+                <td className="border px-4 py-2">{medicine.exp_date.split('T')[0]}</td>
                 <td className="border px-4 py-2">{medicine.price_of_sell}</td>
                 <td className="border px-4 py-2">{medicine.price_of_buy}</td>
                 <td className="border px-4 py-2">{medicine.quantity}</td>
                 <td className="border px-4 py-2">
-                  <button onClick={() => handleEditClick(medicine)} className="bg-blue-500 text-white px-4 py-2">Edit</button>
+                  <button onClick={() => handleEditClick(medicine)} className="bg-yellow-500 text-white px-2 py-1 mr-2">Edit</button>
+                  <button onClick={() => handleDeleteClick(medicine.med_id)} className="bg-red-500 text-white px-2 py-1">Delete</button>
                 </td>
               </tr>
             ))
@@ -119,9 +172,8 @@ const MedicineTable = () => {
         </tbody>
       </table>
 
-      {editingMedicine && (
-        <form onSubmit={handleUpdateSubmit} className="mt-4">
-          <h2 className="text-xl font-bold mb-4">Update Medicine</h2>
+      {(formType === 'add' || formType === 'edit') && (
+        <form onSubmit={handleFormSubmit} className="mt-4 p-4 border rounded bg-gray-100">
           <div className="mb-2">
             <label className="block mb-1">Medicine Name</label>
             <input type="text" name="medicine_name" value={formData.medicine_name} onChange={handleInputChange} className="w-full p-2 border" required />
@@ -158,11 +210,14 @@ const MedicineTable = () => {
             <label className="block mb-1">Quantity</label>
             <input type="number" name="quantity" value={formData.quantity} onChange={handleInputChange} className="w-full p-2 border" required />
           </div>
-          <button type="submit" className="bg-green-500 text-white px-4 py-2">Update</button>
+          <div className="flex justify-end">
+            <button type="button" onClick={handleCancelClick} className="bg-gray-500 text-white px-4 py-2 mr-2">Cancel</button>
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2">Save</button>
+          </div>
         </form>
       )}
     </div>
   );
 };
 
-export default MedicineTable;
+export default MedicineAdmin;
