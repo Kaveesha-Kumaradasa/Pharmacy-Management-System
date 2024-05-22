@@ -4,7 +4,8 @@ import userRoutes from './routes/users.js';
 import authRoutes from './routes/auth.js';
 import medicineRoutes from './routes/med-admin.js';
 import supplierRoutes from './routes/suppliers.js';
-import cashierRoutes from './routes/med-cashier.js';
+import billingRoutes from './routes/billing.js';
+//import cashierRoutes from './routes/med-cashier.js';
 
 const app = express();
 
@@ -15,7 +16,8 @@ app.use('/server/users', userRoutes);
 app.use('/server/auth', authRoutes);
 app.use('/server/med-admin', medicineRoutes);
 app.use('/server/suppliers',supplierRoutes);
-app.use('/server/med-cashier',cashierRoutes);
+app.use('/server/billing',billingRoutes);
+//app.use('/server/med-cashier',cashierRoutes);
 
 app.listen(8800, () => {
   console.log(`Server is running on port`);

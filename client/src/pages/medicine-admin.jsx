@@ -1,223 +1,133 @@
-import  { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import EditProductForm from './edit-product.jsx';
+import AddProduct from './add-product.jsx';
 
-const MedicineAdmin = () => {
-  const [medicines, setMedicines] = useState([]);
-  const [formType, setFormType] = useState(''); // 'add' or 'edit'
-  const [editingMedicine, setEditingMedicine] = useState(null);
-  const [formData, setFormData] = useState({
-    medicine_name: '',
-    category: '',
-    type: '',
-    brand: '',
-    strength: '',
-    exp_date: '',
-    price_of_sell: '',
-    price_of_buy: '',
-    quantity: ''
-  });
-
-  const fetchMedicines = async () => {
-    try {
-      const response = await axios.get('http://localhost:8800/server/med-admin/medicines');
-      setMedicines(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      console.error('Error fetching medicines', error);
-      setMedicines([]);
-    }
-  };
+const ProductList = () => {
+  const [products, setProducts] = useState([]);
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [showAddProduct, setShowAddProduct] = useState(false);
 
   useEffect(() => {
-    fetchMedicines();
+    fetchProducts();
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleEditClick = (medicine) => {
-    setFormType('edit');
-    setEditingMedicine(medicine);
-    setFormData({
-      medicine_name: medicine.medicine_name,
-      category: medicine.category,
-      type: medicine.type,
-      brand: medicine.brand,
-      strength: medicine.strength,
-      exp_date: medicine.exp_date.split('T')[0], // To handle date input format
-      price_of_sell: medicine.price_of_sell,
-      price_of_buy: medicine.price_of_buy,
-      quantity: medicine.quantity
-    });
-  };
-
-  const handleDeleteClick = async (id) => {
+  const fetchProducts = async () => {
     try {
-      const response = await axios.delete(`http://localhost:8800/server/med-admin/medicines/${id}`);
-      console.log(response.data.message);
-      fetchMedicines();
+      const response = await axios.get('http://localhost:8800/server/med-admin/product');
+      setProducts(response.data);
     } catch (error) {
-      console.error('Error deleting medicine', error);
+      console.error('Error fetching products:', error);
     }
   };
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleDelete = async (product_id) => {
     try {
-      if (formType === 'add') {
-        const response = await axios.post('http://localhost:8800/server/med-admin/medicines', formData);
-        console.log(response.data.message);
-      } else if (formType === 'edit' && editingMedicine) {
-        const { med_id, category, type, brand } = editingMedicine;
-        const key = `${med_id}-${category}-${type}-${brand}`;
-        const response = await axios.put(`http://localhost:8800/server/med-admin/medicines/${key}`, formData);
-        console.log(response.data.message);
-      }
-      setFormType('');
-      setEditingMedicine(null);
-      setFormData({
-        medicine_name: '',
-        category: '',
-        type: '',
-        brand: '',
-        strength: '',
-        exp_date: '',
-        price_of_sell: '',
-        price_of_buy: '',
-        quantity: ''
-      });
-      fetchMedicines();
+      await axios.delete(`http://localhost:8800/server/med-admin/product/${product_id}`);
+      setProducts(products.filter((product) => product.product_id !== product_id));
     } catch (error) {
-      console.error('Error submitting form', error);
+      console.error('Error deleting product:', error);
     }
   };
+
+  const handleEditClick = (product_id) => {
+    setEditingProductId(product_id);
+    fetchProducts(); // Refresh products after editing
+  };
+
 
   const handleAddClick = () => {
-    setFormType('add');
-    setEditingMedicine(null);
-    setFormData({
-      medicine_name: '',
-      category: '',
-      type: '',
-      brand: '',
-      strength: '',
-      exp_date: '',
-      price_of_sell: '',
-      price_of_buy: '',
-      quantity: ''
-    });
+    setShowAddProduct(true);
   };
 
-  const handleCancelClick = () => {
-    setFormType('');
-    setEditingMedicine(null);
-    setFormData({
-      medicine_name: '',
-      category: '',
-      type: '',
-      brand: '',
-      strength: '',
-      exp_date: '',
-      price_of_sell: '',
-      price_of_buy: '',
-      quantity: ''
-    });
+  const handleCloseAddProduct = () => {
+    setShowAddProduct(false);
+    fetchProducts(); // Refresh products after adding
+  };
+
+
+  const handleCloseEditProduct = () => {
+    setEditingProductId(null);
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Medicine Inventory</h1>
-      <button onClick={handleAddClick} className="bg-blue-500 text-white px-4 py-2 mb-4">Add Medicine</button>
-      <table className="min-w-full bg-white">
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Product List</h1>
+      <button
+        onClick={handleAddClick}
+        className="bg-green-500 text-white px-4 py-2 rounded mb-4 inline-block"
+      >
+        Add Product
+      </button>
+      <table className="min-w-full bg-white border">
         <thead>
           <tr>
-            <th className="py-2">Medicine Name</th>
-            <th className="py-2">Category</th>
-            <th className="py-2">Type</th>
-            <th className="py-2">Brand</th>
-            <th className="py-2">Strength</th>
-            <th className="py-2">Expire Date</th>
-            <th className="py-2">Price of Sell</th>
-            <th className="py-2">Price of Buy</th>
-            <th className="py-2">Quantity</th>
-            <th className="py-2">Actions</th>
+            <th className="py-2 px-4 border">Product ID</th>
+            <th className="py-2 px-4 border">Product Name</th>
+            <th className="py-2 px-4 border">Expiration Date</th>
+            <th className="py-2 px-4 border">Purchase Price</th>
+            <th className="py-2 px-4 border">Sell Price</th>
+            <th className="py-2 px-4 border">Quantity</th>
+            <th className="py-2 px-4 border">Generic Name</th>
+            <th className="py-2 px-4 border">Category</th>
+            <th className="py-2 px-4 border">Dosage Type</th>
+            <th className="py-2 px-4 border">Brand</th>
+            <th className="py-2 px-4 border">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {medicines.length > 0 ? (
-            medicines.map((medicine) => (
-              <tr key={`${medicine.med_id}-${medicine.category}-${medicine.type}-${medicine.brand}`}>
-                <td className="border px-4 py-2">{medicine.medicine_name}</td>
-                <td className="border px-4 py-2">{medicine.category}</td>
-                <td className="border px-4 py-2">{medicine.type}</td>
-                <td className="border px-4 py-2">{medicine.brand}</td>
-                <td className="border px-4 py-2">{medicine.strength}</td>
-                <td className="border px-4 py-2">{medicine.exp_date.split('T')[0]}</td>
-                <td className="border px-4 py-2">{medicine.price_of_sell}</td>
-                <td className="border px-4 py-2">{medicine.price_of_buy}</td>
-                <td className="border px-4 py-2">{medicine.quantity}</td>
-                <td className="border px-4 py-2">
-                  <button onClick={() => handleEditClick(medicine)} className="bg-yellow-500 text-white px-2 py-1 mr-2">Edit</button>
-                  <button onClick={() => handleDeleteClick(medicine.med_id)} className="bg-red-500 text-white px-2 py-1">Delete</button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td className="border px-4 py-2" colSpan="10">No medicines available</td>
+          {products.map((product) => (
+            <tr key={product.product_id}>
+              <td className="py-2 px-4 border">{product.product_id}</td>
+              <td className="py-2 px-4 border">{product.product_name}</td>
+              <td className="py-2 px-4 border">{product.exp_date}</td>
+              <td className="py-2 px-4 border">{product.purchase_price}</td>
+              <td className="py-2 px-4 border">{product.sell_price}</td>
+              <td className="py-2 px-4 border">{product.quantity}</td>
+              <td className="py-2 px-4 border">{product.generic_name}</td>
+              <td className="py-2 px-4 border">{product.category}</td>
+              <td className="py-2 px-4 border">{product.dosage_type}</td>
+              <td className="py-2 px-4 border">{product.brand}</td>
+              <td className="py-2 px-4 border">
+                <button
+                  onClick={() => handleEditClick(product.product_id)}
+                  className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(product.product_id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded"
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
 
-      {(formType === 'add' || formType === 'edit') && (
-        <form onSubmit={handleFormSubmit} className="mt-4 p-4 border rounded bg-gray-100">
-          <div className="mb-2">
-            <label className="block mb-1">Medicine Name</label>
-            <input type="text" name="medicine_name" value={formData.medicine_name} onChange={handleInputChange} className="w-full p-2 border" required />
+      {editingProductId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg max-h-[80vh] overflow-auto">
+            <EditProductForm
+              product_id={String(editingProductId)}
+              onClose={handleCloseEditProduct}
+              fetchProducts={fetchProducts}
+            />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">Category</label>
-            <input type="text" name="category" value={formData.category} onChange={handleInputChange} className="w-full p-2 border" required />
+        </div>
+      )}
+
+      {showAddProduct && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg max-h-[80vh] overflow-auto">
+            <AddProduct onClose={handleCloseAddProduct} />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">Type</label>
-            <input type="text" name="type" value={formData.type} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Brand</label>
-            <input type="text" name="brand" value={formData.brand} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Strength</label>
-            <input type="text" name="strength" value={formData.strength} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Expire Date</label>
-            <input type="date" name="exp_date" value={formData.exp_date} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Price of Sell</label>
-            <input type="number" name="price_of_sell" value={formData.price_of_sell} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Price of Buy</label>
-            <input type="number" name="price_of_buy" value={formData.price_of_buy} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Quantity</label>
-            <input type="number" name="quantity" value={formData.quantity} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="flex justify-end">
-            <button type="button" onClick={handleCancelClick} className="bg-gray-500 text-white px-4 py-2 mr-2">Cancel</button>
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2">Save</button>
-          </div>
-        </form>
+        </div>
       )}
     </div>
   );
 };
 
-export default MedicineAdmin;
+export default ProductList;
