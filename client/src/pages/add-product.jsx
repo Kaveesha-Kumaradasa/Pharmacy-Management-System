@@ -13,30 +13,34 @@ const AddProduct = ({ onClose }) => {
     generic_id: '',
     cat_id: '',
     type_id: '',
-    brand_id: ''
+    brand_id: '',
+    supplier_id: ''
   });
 
   const [generics, setGenerics] = useState([]);
   const [categories, setCategories] = useState([]);
   const [dosageTypes, setDosageTypes] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [genericRes, categoryRes, dosageTypeRes, brandRes] = await Promise.all([
+        const [genericRes, categoryRes, dosageTypeRes, brandRes, supplierRes] = await Promise.all([
           axios.get('http://localhost:8800/server/med-admin/product/generics'),
           axios.get('http://localhost:8800/server/med-admin/product/categories'),
           axios.get('http://localhost:8800/server/med-admin/product/dosage-types'),
-          axios.get('http://localhost:8800/server/med-admin/product/brands')
+          axios.get('http://localhost:8800/server/med-admin/product/brands'),
+          axios.get('http://localhost:8800/server/med-admin/product/suppliers')
         ]);
 
         setGenerics(genericRes.data);
         setCategories(categoryRes.data);
         setDosageTypes(dosageTypeRes.data);
         setBrands(brandRes.data);
+        setSuppliers(supplierRes.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -176,6 +180,21 @@ const AddProduct = ({ onClose }) => {
             <option value="">Select Brand</option>
             {brands.map(brand => (
               <option key={brand.brand_id} value={brand.brand_id}>{brand.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-700">Supplier</label>
+          <select
+            name="supplier_id"
+            value={product.supplier_id}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none"
+            required
+          >
+            <option value="">Select Supplier</option>
+            {suppliers.map(supplier=> (
+              <option key={supplier.supplier_id} value={supplier.supplier_id}>{supplier.name}</option>
             ))}
           </select>
         </div>

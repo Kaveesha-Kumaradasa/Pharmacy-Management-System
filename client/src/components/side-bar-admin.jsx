@@ -18,6 +18,14 @@ export const SidebarAdmin=[
       {
         title: "Users",
         path: "/users"
+    },
+      {
+        title: "Others",
+        path: "/others"
+      },
+      {
+        title: "Expiration Near Med",
+        path: "/expired-medicine"
       },
 ]
 

@@ -31,13 +31,13 @@ const Dashboard = () => {
         {/* Daily Sales Card */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Daily Sales</h2>
-          <p className="text-2xl font-bold text-blue-500">${dailySales}</p>
+          <p className="text-2xl font-bold text-blue-500">{dailySales}</p>
         </div>
 
         {/* Monthly Sales Card */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Monthly Sales</h2>
-          <p className="text-2xl font-bold text-green-500">${monthlySales}</p>
+          <p className="text-2xl font-bold text-green-500">{monthlySales}</p>
         </div>
 
         {/* Stock Levels Card */}

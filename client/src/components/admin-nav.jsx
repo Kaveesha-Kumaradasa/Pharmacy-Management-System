@@ -5,6 +5,9 @@ import Users from "../pages/users";
 import Suppliers from "../pages/suppliers";
 import OrdersAdmin from "../pages/orders-admin";
 import MedicineAdmin from "../pages/medicine-admin";  
+import Others from "../pages/Others";
+import ExpMed from "../pages/expired-medicine";
+
 
 
 const AdminNav = () => {
@@ -16,7 +19,9 @@ const AdminNav = () => {
         <Route path="/medicine-admin" element={<MedicineAdmin />} />
         <Route path="/orders-admin" element={<OrdersAdmin />} />
         <Route path="/pages/supplier" element={<Suppliers />} />
-        <Route path="/users" element={<Users />} /> 
+        <Route path="/users" element={<Users />} />
+        <Route path="/others" element={<Others/>}/>
+        <Route path="/expired-medicine" element={<ExpMed/>}/>
         </Routes>
       </section>
     </React.Fragment>
