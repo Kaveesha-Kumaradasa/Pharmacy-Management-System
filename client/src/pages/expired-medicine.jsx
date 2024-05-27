@@ -1,8 +1,8 @@
-// src/App.jsx
+// src/pages/ExpiredMedicine.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function ExpMed() {
+function ExpiredMedicine() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ function ExpMed() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Expiring Products</h1>
+      <h1 className="text-2xl font-bold mb-4">Expired Medicine</h1>
       <table className="min-w-full bg-white">
         <thead>
           <tr>
@@ -31,8 +31,8 @@ function ExpMed() {
           </tr>
         </thead>
         <tbody>
-        {products.map((product) => (
-              <tr key={product.product_id} className="hover:bg-gray-100">
+          {products.map((product) => (
+            <tr key={product.product_name}>
               <td className="py-2 px-4 border-b">{product.supplier}</td>
               <td className="py-2 px-4 border-b">{product.product_name}</td>
               <td className="py-2 px-4 border-b">{product.exp_date}</td>
@@ -46,4 +46,4 @@ function ExpMed() {
   );
 }
 
-export default  ExpMed;
+export default ExpiredMedicine;

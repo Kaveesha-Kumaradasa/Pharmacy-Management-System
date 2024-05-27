@@ -1,131 +1,124 @@
-import {db} from '../db.js';
+import { db } from '../db.js';
 
-export const addInvoice = async (req, res) => {
-    const { customer_name, total_amount, user_id, products } = req.body;
-    const date = new Date().toISOString().slice(0, 10);
-
-    const connection = await db.getConnection();
-    await connection.beginTransaction();
-
-    try {
-        const [result] = await connection.execute('INSERT INTO bill (date, customer_name, total_amount, user_id) VALUES (?, ?, ?, ?)', [date, customer_name, total_amount, user_id]);
-        const bill_id = result.insertId;
-
-        let productQueries = products.map(async product => {
-            const [rows] = await connection.execute('SELECT quantity FROM product WHERE id = ?', [product.product_id]);
-            if (rows[0].quantity < product.quantity) {
-                throw new Error('Insufficient stock');
-            }
-
-            await connection.execute('INSERT INTO bill_product (bill_id, product_id, quantity) VALUES (?, ?, ?)', [bill_id, product.product_id, product.quantity]);
-            await connection.execute('UPDATE product SET quantity = quantity - ? WHERE id = ?', [product.quantity, product.product_id]);
-        });
-
-        await Promise.all(productQueries);
-        await connection.commit();
-        res.send({ success: true, bill_id });
-    } catch (err) {
-        await connection.rollback();
-        res.status(500).send(err.message);
-    } finally {
-        connection.release();
+// Function to get product ID from product name
+const getProductId = (productName, callback) => {
+  db.query('SELECT product_id FROM product WHERE product_name = ?', [productName], (err, results) => {
+    if (err) {
+      callback(err, null);
+    } else {
+      if (results.length > 0) {
+        callback(null, results[0].product_id);
+      } else {
+        callback(new Error('Product not found'), null);
+      }
     }
+  });
 };
 
-export const updateInvoice = async (req, res) => {
-    const { id } = req.params;
-    const { customer_name, total_amount, user_id, products } = req.body;
+// Create a new bill
+export const createBill = (req, res) => {
+  const { date, bill_total, customer_name, user_id, products } = req.body;
 
-    const connection = await db.getConnection();
-    await connection.beginTransaction();
+  try {
+    // Get product ID for each item
+    const productsWithIds = products.map((product, index) => {
+      return new Promise((resolve, reject) => {
+        getProductId(product.product_name, (err, productId) => {
+          if (err) {
+            console.error(`Error getting product ID for product at index ${index}:`, err);
+            resolve(null);
+          } else {
+            resolve({ ...product, product_id: productId });
+          }
+        });
+      });
+    });
 
-    try {
-        const [currentProducts] = await connection.execute('SELECT * FROM bill_product WHERE bill_id = ?', [id]);
+    // Wait for all product ID promises to resolve
+    Promise.all(productsWithIds)
+      .then((validItems) => {
+        // Filter out items with null product_id (products not found)
+        const filteredItems = validItems.filter(item => item !== null);
 
-        let productQueries = products.map(async product => {
-            let currentProduct = currentProducts.find(p => p.product_id === product.product_id);
-            let quantityDifference = product.quantity - (currentProduct ? currentProduct.quantity : 0);
+        // Check if filteredItems is empty
+        if (filteredItems.length === 0) {
+          return res.status(400).json({ error: 'No valid products found to create bill' });
+        }
 
-            const [rows] = await connection.execute('SELECT quantity FROM product WHERE id = ?', [product.product_id]);
-            if (rows[0].quantity < quantityDifference) {
-                throw new Error('Insufficient stock');
-            }
+        // Start transaction
+        db.beginTransaction((err) => {
+          if (err) throw err;
 
-            if (currentProduct) {
-                await connection.execute('UPDATE bill_product SET quantity = ? WHERE bill_id = ? AND product_id = ?', [product.quantity, id, product.product_id]);
-                await connection.execute('UPDATE product SET quantity = quantity + ? WHERE id = ?', [-quantityDifference, product.product_id]);
+          // Insert bill details
+          const billQuery = 'INSERT INTO bill (date, bill_total, customer_name, user_id) VALUES (?, ?, ?, ?)';
+          db.query(billQuery, [date, bill_total, customer_name, user_id], (err, billResult) => {
+            if (err) {
+              db.rollback(() => {
+                console.error('Error inserting bill details:', err);
+                res.status(500).json({ error: 'An error occurred while creating bill' });
+              });
             } else {
-                await connection.execute('INSERT INTO bill_product (bill_id, product_id, quantity) VALUES (?, ?, ?)', [id, product.product_id, product.quantity]);
-                await connection.execute('UPDATE product SET quantity = quantity - ? WHERE id = ?', [product.quantity, product.product_id]);
+              const billId = billResult.insertId;
+
+              // Prepare bill items values
+              const values = filteredItems.map(item => [billId, item.product_id, item.quantity, item.total]);
+
+              // Insert bill items (products)
+              const billItemsQuery = 'INSERT INTO bill_product (bill_id, product_id, bill_quantity, total) VALUES ?';
+              db.query(billItemsQuery, [values], (err) => {
+                if (err) {
+                  db.rollback(() => {
+                    console.error('Error inserting bill items:', err);
+                    res.status(500).json({ error: 'An error occurred while creating bill' });
+                  });
+                } else {
+                  // Update product quantities in the inventory
+                  filteredItems.forEach(item => {
+                    const updateQuantityQuery = 'UPDATE product SET quantity = quantity - ? WHERE product_id = ?';
+                    db.query(updateQuantityQuery, [item.quantity, item.product_id], (err) => {
+                      if (err) {
+                        db.rollback(() => {
+                          console.error('Error updating product quantity:', err);
+                          res.status(500).json({ error: 'An error occurred while creating bill' });
+                        });
+                      }
+                    });
+                  });
+
+                  // Commit transaction
+                  db.commit((err) => {
+                    if (err) {
+                      db.rollback(() => {
+                        console.error('Error committing transaction:', err);
+                        res.status(500).json({ error: 'An error occurred while creating bill' });
+                      });
+                    } else {
+                      res.json({ message: 'Bill created successfully' });
+                    }
+                  });
+                }
+              });
             }
+          });
         });
-
-        await Promise.all(productQueries);
-        await connection.execute('UPDATE bill SET customer_name = ?, total_amount = ?, user_id = ? WHERE bill_id = ?', [customer_name, total_amount, user_id, id]);
-        await connection.commit();
-        res.send({ success: true });
-    } catch (err) {
-        await connection.rollback();
-        res.status(500).send(err.message);
-    } finally {
-        connection.release();
-    }
+      })
+      .catch((error) => {
+        console.error('Error creating bill:', error);
+        res.status(500).json({ error: 'An error occurred while creating bill' });
+      });
+  } catch (error) {
+    console.error('Error creating bill:', error);
+    res.status(500).json({ error: 'An error occurred while creating bill' });
+  }
 };
 
-export const getAllInvoices = async (req, res) => {
-    try {
-        const [results] = await db.execute('SELECT * FROM bill ORDER BY bill_id DESC, date DESC');
-        res.send(results);
-    } catch (err) {
-        res.status(500).send(err.message);
+// Get products based on search query
+export const getProducts = (req, res) => {
+  const { name } = req.query;
+  db.query('SELECT * FROM product WHERE product_name LIKE ?', [`%${name}%`], (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
     }
-};
-
-export const getInvoiceById = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const [billResults] = await db.execute('SELECT * FROM bill WHERE bill_id = ?', [id]);
-        const [productResults] = await db.execute('SELECT * FROM bill_product WHERE bill_id = ?', [id]);
-        res.send({ bill: billResults[0], products: productResults });
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-};
-
-export const getInvoicesByDate = async (req, res) => {
-    const { date } = req.body;
-
-    try {
-        const [results] = await db.execute('SELECT * FROM bill WHERE date = ? ORDER BY bill_id DESC, date DESC', [date]);
-        res.send(results);
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-};
-
-export const deleteInvoice = async (req, res) => {
-    const { id } = req.params;
-
-    const connection = await db.getConnection();
-    await connection.beginTransaction();
-
-    try {
-        const [products] = await connection.execute('SELECT * FROM bill_product WHERE bill_id = ?', [id]);
-
-        let productQueries = products.map(async product => {
-            await connection.execute('UPDATE product SET quantity = quantity + ? WHERE id = ?', [product.quantity, product.product_id]);
-        });
-
-        await Promise.all(productQueries);
-        await connection.execute('DELETE FROM bill_product WHERE bill_id = ?', [id]);
-        await connection.execute('DELETE FROM bill WHERE bill_id = ?', [id]);
-        await connection.commit();
-        res.send({ success: true });
-    } catch (err) {
-        await connection.rollback();
-        res.status(500).send(err.message);
-    } finally {
-        connection.release();
-    }
+    res.json(results);
+  });
 };

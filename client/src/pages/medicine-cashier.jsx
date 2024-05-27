@@ -48,7 +48,6 @@ const CashierList = () => {
             <option value="all">All</option>
             <option value="product_name">Product Name</option>
             <option value="category">Category</option>
-            <option value="generic_name">Generic Name</option>
             <option value="dosage_type">Dosage</option>
             <option value="brand">Brand</option>
             <option value="supplier">Supplier</option>
