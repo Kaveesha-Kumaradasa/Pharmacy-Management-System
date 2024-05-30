@@ -86,7 +86,7 @@ function Register() {
         </div>
       </form>
 
-      <Link to="/pages/login" className="block mt-6 font-semibold leading-10 text-sky-600 hover:text-sky-500">
+      <Link to="/login" className="block mt-6 font-semibold leading-10 text-sky-600 hover:text-sky-500">
         Click Here to Login
       </Link>
     </div>

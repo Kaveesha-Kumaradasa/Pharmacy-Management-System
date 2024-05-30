@@ -1,58 +1,28 @@
+// App.js
 import './App.css';
-import Login from './pages/login.jsx';
-import { BrowserRouter,Route,Routes} from "react-router-dom";
-import Register from './pages/register.jsx';
-import Dashboard from './pages/dashboard.jsx';
-import ProductList from './pages/medicine-admin.jsx'; 
-import AddProduct from './pages/add-product.jsx';
-import EditProduct from './pages/edit-product.jsx';  
-import SupplierList from './pages/suppliers.jsx' ;
-import CashierList from './pages/medicine-cashier.jsx';
-import Invoice from './pages/bill.jsx'; 
-
-//import AdminPg from './pages/admin-pg.jsx';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import Login from './pages/login';
+import Register from './pages/register';
+import AdminPg from './pages/admin-pg';
+import CashierPg from './pages/cashier-pg';
+import SupplierPg from './pages/supplier-pg';
+import Landing from './pages/landing';
 //import React from 'react';
-//import CashierPg from './pages/cashier-pg.jsx';
-//import SupplierPg from './pages/supplier-pg.jsx';
-
-
-
 
 function App() {
-  return ( 
-
-    
-
-  <BrowserRouter>
-   <Routes>       
-        <Route exact path="/pages/login" element={<Login />} />
-        <Route exact path="/pages/register" element={<Register />} />
-        <Route exact path="/pages/dashboard" element={<Dashboard />} />
-        <Route exact path="/pages/medicine-admin" element={<ProductList/>} />
-        <Route exact path="/pages/add-product" element={<AddProduct/>} />
-        <Route exact path="/pages/edit-product" element={<EditProduct/>} />
-        <Route exact path="/pages/suppliers" element={<SupplierList/>} />
-        <Route exact path="/pages/medicine-cashier" element={<CashierList/>} />
-        <Route exact path="/pages/bill" element={<Invoice/>} />
-  </Routes>
-
-  {/*<React.Fragment> 
-        <AdminPg />
-        <CashierPg />
-        <SupplierPg />
-        
-  </React.Fragment>*/}
-
-       </BrowserRouter>
- 
-
-
-
-
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/landing" element={<Landing />} />
+        <Route path="/admin/*" element={<AdminPg />} />
+        <Route path="/cashier/*" element={<CashierPg />} />
+        <Route path="/supplier/*" element={<SupplierPg />} />
+        <Route path="/" element={<Navigate to="/login" />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-
-
 export default App;
-

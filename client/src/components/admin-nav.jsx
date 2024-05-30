@@ -18,7 +18,7 @@ const AdminNav = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/medicine-admin" element={<MedicineAdmin />} />
         <Route path="/orders-admin" element={<OrdersAdmin />} />
-        <Route path="/pages/supplier" element={<Suppliers />} />
+        <Route path="/supplier" element={<Suppliers />} />
         <Route path="/users" element={<Users />} />
         <Route path="/others" element={<Others/>}/>
         <Route path="/expired-medicine" element={<ExpMed/>}/>

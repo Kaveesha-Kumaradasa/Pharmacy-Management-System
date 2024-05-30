@@ -1,6 +1,6 @@
 import React from 'react';
 import Navbar from '../components/nav-bar.jsx';
-import SideBar from '../components/side-bar-su.jsx';
+import SideBarS from '../components/side-bar-su.jsx';
 import SupplierNav from '../components/supplier-nav.jsx';
 
 
@@ -14,12 +14,12 @@ function SupplierPg() {
                 </div>
             </section>
          <section>
-                <div className='grid grid-cols-12'>
-                <div className='col-span-1 bg-sky-900 h-screen pl-1 md:col-span-2'>
-                    <SideBar/>
+                <div className='flex'>
+                <div className='w-1/12 bg-sky-600 h-screen'>
+                    <SideBarS/>
                 </div>
 
-                <div className='col-span-9 h-screen pl-2 md:col-span-10'>
+                <div className='flex-1 h-screen pl-2'>
               <SupplierNav/>
                 </div>
                

@@ -1,5 +1,6 @@
 import  { useState, useEffect } from 'react';
 
+
 const Dashboard = () => {
   const [dailySales, setDailySales] = useState(0);
   const [monthlySales, setMonthlySales] = useState(0);
