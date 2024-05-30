@@ -1,12 +1,15 @@
 import { db } from '../db.js';
 
-export const getSuppliers = async (req, res) => {
-  const sql = 'SELECT * FROM users WHERE role_id = ?';
-  db.query(sql, [3], (err, data) => { // Assuming '2' is the role_id for 'supplier'
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
-    return res.json(data);
+export const getSuppliers = (req, res) => {
+  const roleId = 3;
+  const query = 'SELECT name, email, phone_number, address FROM users WHERE role_id = ?';
+
+  db.query(query, [roleId], (error, results) => {
+      if (error) {
+          console.error('Error fetching suppliers:', error);
+          res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+          res.json(results);
+      }
   });
 };

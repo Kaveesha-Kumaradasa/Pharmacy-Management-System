@@ -26,7 +26,7 @@ const ProductList = () => {
       console.error('Error fetching products:', error);
     }
   };
-
+  
   const handleDelete = async (product_id) => {
     try {
       await axios.delete(`http://localhost:8800/server/med-admin/product/${product_id}`);
@@ -67,7 +67,7 @@ const ProductList = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Product List</h1>
+      {/*<h1 className="text-3xl font-bold mb-6 text-gray-800">Product List</h1>*/}
       <div className="flex justify-between mb-6">
         <div className="relative">
           <FontAwesomeIcon icon={faFilter} className="absolute left-3 top-3 text-gray-400" />

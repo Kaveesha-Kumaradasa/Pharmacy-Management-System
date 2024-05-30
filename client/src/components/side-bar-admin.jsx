@@ -20,7 +20,7 @@ export const SidebarAdmin = [
   },
   {
     title: "Suppliers",
-    path: "/admin/pages/supplier",
+    path: "/admin/suppliers",
     icon: <MdLocalPharmacy />
   },
   {

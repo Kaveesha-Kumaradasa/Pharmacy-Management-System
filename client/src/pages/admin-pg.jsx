@@ -5,7 +5,6 @@ import AdminNav from '../components/admin-nav.jsx';
 
 
 function AdminPg() {
-    
     return (
         <React.Fragment>
             {/* heading section */}
@@ -14,22 +13,16 @@ function AdminPg() {
                     <Navbar/>   
                 </div>
             </section>
-         <section>
+            <section>
                 <div className='flex'>
-                <div className='w-1/12 bg-sky-600 h-screen'>
-                    <SideBarA/>
+                    <div className='w-1/12 bg-sky-600 h-screen'>
+                        <SideBarA/>
+                    </div>
+                    <div className='flex-1 h-screen pl-2 overflow-auto'>
+                        <AdminNav/>
+                    </div>
                 </div>
-
-                <div className='flex-1 h-screen pl-2'>
-              <AdminNav/>
-                </div>
-               
-
-                </div>
-
-
             </section>
-
         </React.Fragment>
     );
 }
