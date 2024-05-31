@@ -87,12 +87,28 @@ export const getProductById = (req, res) => {
   });
 };
 
-// Create new product
 export const createProduct = (req, res) => {
   const { product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id } = req.body;
-  const query = 'INSERT INTO product (product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+  console.log('Received payload:', req.body);
+
+  if (!product_name || !exp_date || !purchase_price || !sell_price || !quantity || !generic_id || !cat_id || !type_id || !brand_id || !supplier_id) {
+    console.error('Missing required fields');
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const query = 'INSERT INTO product (product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  
+  console.log('Executing query:', query);
+  console.log('With values:', [product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id]);
+
   db.query(query, [product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id], (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) {
+      console.error('Error executing query:', err.message);
+      console.error('SQL Error Code:', err.code);
+      console.error('SQL Error Details:', err.sqlMessage);
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
     res.status(201).json({ message: 'Product created successfully', id: results.insertId });
   });
 };

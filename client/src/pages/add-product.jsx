@@ -14,7 +14,7 @@ const AddProduct = ({ onClose }) => {
     cat_id: '',
     type_id: '',
     brand_id: '',
-    supplier_id: ''
+    supplier_id: ''  // Ensure this is an ID
   });
 
   const [generics, setGenerics] = useState([]);
@@ -58,7 +58,7 @@ const AddProduct = ({ onClose }) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:8800/server/med-admin/product', product);
-      navigate('/');
+      navigate('admin/medicine-admin');
     } catch (error) {
       console.error('Error adding product:', error);
     }
@@ -193,8 +193,8 @@ const AddProduct = ({ onClose }) => {
             required
           >
             <option value="">Select Supplier</option>
-            {suppliers.map(supplier=> (
-              <option key={supplier.supplier_id} value={supplier.supplier_id}>{supplier.name}</option>
+            {suppliers.map(supplier => (
+              <option key={supplier.user_id} value={supplier.user_id}>{supplier.name}</option>
             ))}
           </select>
         </div>
