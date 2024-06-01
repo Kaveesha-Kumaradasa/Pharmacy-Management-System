@@ -44,8 +44,16 @@ const SupOrder = () => {
           orders.map((order, index) => (
             <div key={index} className="border p-4 rounded">
               <div><strong>Order ID:</strong> {order.order_id}</div>
-              <div><strong>Product:</strong> {order.product_name}</div>
-              <div><strong>Quantity:</strong> {order.quantity}</div>
+              <div>
+                <strong>Products:</strong>
+                <ul>
+                  {order.products.map(product => (
+                    <li key={product.product_id}>
+                      {product.product_name} - Quantity: {product.quantity}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           ))
         ) : (

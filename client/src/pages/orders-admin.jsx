@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const OrdersAdmin = () => {
@@ -112,9 +112,17 @@ const OrdersAdmin = () => {
         {orders.map(order => (
           <div key={order.order_id} className="border p-4 rounded">
             <div><strong>Order ID:</strong> {order.order_id}</div>
-            <div><strong>Supplier ID:</strong> {order.supplier_id}</div>
-            <div><strong>Product:</strong> {order.product_name}</div>
-            <div><strong>Quantity:</strong> {order.quantity}</div>
+            <div><strong>Supplier Name:</strong> {order.supplier_name}</div>
+            <div>
+              <strong>Products:</strong>
+              <ul>
+                {order.products.map(product => (
+                  <li key={product.product_id}>
+                    {product.product_name} - Quantity: {product.quantity}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         ))}
       </div>

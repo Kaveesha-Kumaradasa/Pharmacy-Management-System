@@ -87,8 +87,22 @@ export const getOrdersBySupplier = (req, res) => {
       console.error('Error executing query:', err.message);
       res.status(500).json({ error: err.message });
     } else {
-      console.log('Query results:', results);
-      res.json(results);
+      // Group orders by order_id
+      const ordersMap = results.reduce((acc, row) => {
+        const { order_id, product_id, product_name, quantity } = row;
+        if (!acc[order_id]) {
+          acc[order_id] = {
+            order_id,
+            products: []
+          };
+        }
+        acc[order_id].products.push({ product_id, product_name, quantity });
+        return acc;
+      }, {});
+
+      const orders = Object.values(ordersMap);
+
+      res.json(orders);
     }
   });
 };
@@ -107,6 +121,7 @@ export const getOrdersByAdmin = (req, res) => {
     SELECT 
       orders.order_id, 
       orders.supplier_id,
+      users.name as supplier_name,
       order_detail.product_id, 
       product.product_name, 
       order_detail.quantity
@@ -116,6 +131,8 @@ export const getOrdersByAdmin = (req, res) => {
       order_detail ON orders.order_id = order_detail.order_id
     JOIN 
       product ON order_detail.product_id = product.product_id
+    JOIN
+      users ON orders.supplier_id = users.user_id
     ORDER BY 
       orders.order_id DESC
   `;
@@ -125,8 +142,25 @@ export const getOrdersByAdmin = (req, res) => {
       console.error('Error fetching orders for admin:', err);
       res.status(500).json({ error: err.message });
     } else {
-      res.json(results);
+      // Group orders by order_id
+      const ordersMap = results.reduce((acc, row) => {
+        const { order_id, supplier_name, product_id, product_name, quantity } = row;
+        if (!acc[order_id]) {
+          acc[order_id] = {
+            order_id,
+            supplier_name,
+            products: []
+          };
+        }
+        acc[order_id].products.push({ product_id, product_name, quantity });
+        return acc;
+      }, {});
+
+      const orders = Object.values(ordersMap);
+
+      res.json(orders);
     }
   });
 };
+
 
