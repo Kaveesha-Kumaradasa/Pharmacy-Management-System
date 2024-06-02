@@ -66,6 +66,15 @@ const OrdersAdmin = () => {
       .catch(error => console.error('Error sending order:', error));
   };
 
+  const handleDeliveryStatus = (orderId) => {
+    axios.put(`http://localhost:8800/server/orders/delivery/status`, { orderId, status: 'delivered' })
+      .then(response => {
+        console.log('Delivery status updated:', response.data);
+        fetchOrders(); // Refresh orders to show the updated status
+      })
+      .catch(error => console.error('Error updating delivery status:', error));
+  };
+
   return (
     <div className="p-4">
       <h1 className="text-2xl mb-4">Admin Interface - Pharmacy Management System</h1>
@@ -114,6 +123,7 @@ const OrdersAdmin = () => {
             <div><strong>Order ID:</strong> {order.order_id}</div>
             <div><strong>Supplier Name:</strong> {order.supplier_name}</div>
             <div><strong>Order Date:</strong> {new Date(order.date).toLocaleString()}</div>
+            <div><strong>Order Status:</strong> {order.status}</div>
             <div>
               <strong>Products:</strong>
               <ul>
@@ -124,6 +134,14 @@ const OrdersAdmin = () => {
                 ))}
               </ul>
             </div>
+            {order.status !== 'delivered' && (
+              <button
+                onClick={() => handleDeliveryStatus(order.order_id)}
+                className="mt-2 p-2 bg-green-500 text-white rounded"
+              >
+                Mark as Delivered
+              </button>
+            )}
           </div>
         ))}
       </div>

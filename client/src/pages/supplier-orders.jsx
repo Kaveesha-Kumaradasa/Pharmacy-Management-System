@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const SupOrder = () => {
@@ -6,12 +6,9 @@ const SupOrder = () => {
   const [supplierId, setSupplierId] = useState(null);
 
   useEffect(() => {
-    // Retrieve the logged-in supplier's ID and role from local storage
     const loggedInSupplierId = localStorage.getItem('user_id');
     const userRoleId = localStorage.getItem('role_id');
-    console.log('Logged in supplier ID:', loggedInSupplierId);
-    console.log('User role ID:', userRoleId);
-    if (loggedInSupplierId && userRoleId === '3') { // 3 is the role_id for suppliers
+    if (loggedInSupplierId && userRoleId === '3') {
       setSupplierId(loggedInSupplierId);
     } else {
       console.error('User is not a supplier or not logged in');
@@ -20,20 +17,36 @@ const SupOrder = () => {
 
   useEffect(() => {
     if (supplierId) {
-      console.log(`Fetching orders for supplier ID: ${supplierId}`);
       axios.get(`http://localhost:8800/server/orders/orders?supplier_id=${supplierId}`, {
         headers: {
           'user-id': supplierId,
-          'role-id': '3', // Ensure role_id is passed as a header
+          'role-id': '3',
         }
       })
         .then(response => {
-          console.log('Fetched orders:', response.data);
           setOrders(response.data);
         })
         .catch(error => console.error('Error fetching orders:', error));
     }
   }, [supplierId]);
+
+  const handleDeliveryStatus = (orderId) => {
+    axios.put(`http://localhost:8800/server/orders/delivery/status`, { orderId, status: 'delivered' }, {
+      headers: {
+        'user-id': supplierId,
+        'role-id': '3',
+      }
+    })
+      .then(response => {
+        setOrders(prevOrders =>
+          prevOrders.map(order =>
+            order.order_id === orderId ? { ...order, status: 'delivered' } : order
+          )
+        );
+        console.log('Delivery status updated:', response.data);
+      })
+      .catch(error => console.error('Error updating delivery status:', error));
+  };
 
   return (
     <div className="p-4">
@@ -45,6 +58,7 @@ const SupOrder = () => {
             <div key={index} className="border p-4 rounded">
               <div><strong>Order ID:</strong> {order.order_id}</div>
               <div><strong>Order Date:</strong> {new Date(order.date).toLocaleString()}</div>
+              <div><strong>Order Status:</strong> {order.status}</div>
               <div>
                 <strong>Products:</strong>
                 <ul>
@@ -55,6 +69,9 @@ const SupOrder = () => {
                   ))}
                 </ul>
               </div>
+              <button className="mt-2 p-2 bg-green-500 text-white rounded" onClick={() => handleDeliveryStatus(order.order_id)}>
+                Mark as Delivered
+              </button>
             </div>
           ))
         ) : (

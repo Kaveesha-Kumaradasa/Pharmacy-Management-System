@@ -68,7 +68,8 @@ export const getOrdersBySupplier = (req, res) => {
   const query = `
     SELECT 
       orders.order_id, 
-      orders.date, 
+      orders.date,
+      orders.status, 
       order_detail.product_id, 
       product.product_name, 
       order_detail.quantity
@@ -91,11 +92,12 @@ export const getOrdersBySupplier = (req, res) => {
     } else {
       console.log('Query results:', results);
       const ordersMap = results.reduce((acc, row) => {
-        const { order_id, date, product_id, product_name, quantity } = row;
+        const { order_id, date, status, product_id, product_name, quantity } = row;
         if (!acc[order_id]) {
           acc[order_id] = {
             order_id,
             date,
+            status,
             products: []
           };
         }
@@ -108,6 +110,8 @@ export const getOrdersBySupplier = (req, res) => {
     }
   });
 };
+
+
 
 // controllers/orders.js
 
@@ -124,6 +128,7 @@ export const getOrdersByAdmin = (req, res) => {
       orders.order_id, 
       orders.supplier_id,
       orders.date,
+      orders.status,
       users.name as supplier_name,
       order_detail.product_id, 
       product.product_name, 
@@ -146,12 +151,13 @@ export const getOrdersByAdmin = (req, res) => {
       res.status(500).json({ error: err.message });
     } else {
       const ordersMap = results.reduce((acc, row) => {
-        const { order_id, supplier_name, date, product_id, product_name, quantity } = row;
+        const { order_id, supplier_name, date, status, product_id, product_name, quantity } = row;
         if (!acc[order_id]) {
           acc[order_id] = {
             order_id,
             supplier_name,
             date,
+            status,
             products: []
           };
         }
@@ -160,8 +166,22 @@ export const getOrdersByAdmin = (req, res) => {
       }, {});
 
       const orders = Object.values(ordersMap);
-
       res.json(orders);
+    }
+  });
+};
+
+// controllers/orders.js
+
+export const updateOrderDeliveryStatus = (req, res) => {
+  const { orderId, status } = req.body;
+  const query = 'UPDATE orders SET status = ? WHERE order_id = ?';
+  db.query(query, [status, orderId], (err, result) => {
+    if (err) {
+      console.error('Error updating order delivery status:', err);
+      res.status(500).json({ error: err.message });
+    } else {
+      res.status(200).json({ message: 'Order delivery status updated successfully' });
     }
   });
 };
