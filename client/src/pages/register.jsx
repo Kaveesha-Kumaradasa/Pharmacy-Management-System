@@ -37,7 +37,7 @@ function Register() {
     <div className="max-w-md mx-auto">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-          Register Here
+          Add users here
         </h2>
       </div>
       <form onSubmit={handleSubmit} className="mt-8 space-y-6 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
@@ -86,7 +86,7 @@ function Register() {
         </div>
       </form>
 
-      <Link to="/pages/login" className="block mt-6 font-semibold leading-10 text-sky-600 hover:text-sky-500">
+      <Link to="/login" className="block mt-6 font-semibold leading-10 text-sky-600 hover:text-sky-500">
         Click Here to Login
       </Link>
     </div>

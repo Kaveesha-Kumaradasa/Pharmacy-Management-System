@@ -1,168 +1,178 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch, faFilter } from '@fortawesome/free-solid-svg-icons';
+import EditProductForm from './edit-product.jsx';
+import AddProduct from './add-product.jsx';
 
-const MedicineTable = () => {
-  const [medicines, setMedicines] = useState([]);
-  const [editingMedicine, setEditingMedicine] = useState(null);
-  const [formData, setFormData] = useState({
-    medicine_name: '',
-    category: '',
-    type: '',
-    brand: '',
-    strength: '',
-    exp_date: '',
-    price_of_sell: '',
-    price_of_buy: '',
-    quantity: ''
-  });
-
-  const fetchMedicines = async () => {
-    try {
-      const response = await axios.get('http://localhost:8800/server/med-admin/medicines');
-      setMedicines(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      console.error('Error fetching medicines', error);
-      setMedicines([]);
-    }
-  };
+const ProductList = () => {
+  const [products, setProducts] = useState([]);
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchField, setSearchField] = useState('all');
 
   useEffect(() => {
-    fetchMedicines();
+    fetchProducts();
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleEditClick = (medicine) => {
-    setEditingMedicine(medicine);
-    setFormData({
-      medicine_name: medicine.medicine_name,
-      category: medicine.category,
-      type: medicine.type,
-      brand: medicine.brand,
-      strength: medicine.strength,
-      exp_date: medicine.exp_date.split('T')[0], // To handle date input format
-      price_of_sell: medicine.price_of_sell,
-      price_of_buy: medicine.price_of_buy,
-      quantity: medicine.quantity
-    });
-  };
-
-  const handleUpdateSubmit = async (e) => {
-    e.preventDefault();
-    if (!editingMedicine) return;
-
+  const fetchProducts = async (searchField = '', searchQuery = '') => {
     try {
-      const response = await axios.put(`http://localhost:8800/server/med-admin/medicines/${editingMedicine.med_id}`, formData);
-      console.log(response.data.message);
-      setEditingMedicine(null);
-      setFormData({
-        medicine_name: '',
-        category: '',
-        type: '',
-        brand: '',
-        strength: '',
-        exp_date: '',
-        price_of_sell: '',
-        price_of_buy: '',
-        quantity: ''
+      const response = await axios.get('http://localhost:8800/server/med-admin/product', {
+        params: { searchField, searchQuery },
       });
-      fetchMedicines();
+      setProducts(response.data);
     } catch (error) {
-      console.error('Error updating medicine', error);
+      console.error('Error fetching products:', error);
     }
+  };
+  
+  const handleDelete = async (product_id) => {
+    try {
+      await axios.delete(`http://localhost:8800/server/med-admin/product/${product_id}`);
+      setProducts(products.filter((product) => product.product_id !== product_id));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
+  const handleEditClick = (product_id) => {
+    setEditingProductId(product_id);
+    fetchProducts(); // Refresh products after editing
+  };
+
+  const handleAddClick = () => {
+    setShowAddProduct(true);
+  };
+
+  const handleCloseAddProduct = () => {
+    setShowAddProduct(false);
+    fetchProducts(); // Refresh products after adding
+  };
+
+  const handleCloseEditProduct = () => {
+    setEditingProductId(null);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    fetchProducts(searchField, event.target.value);
+  };
+
+  const handleSearchFieldChange = (event) => {
+    const newSearchField = event.target.value;
+    setSearchField(newSearchField);
+    fetchProducts(newSearchField, searchQuery);
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Medicine Inventory</h1>
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr>
-            <th className="py-2">Medicine Name</th>
-            <th className="py-2">Category</th>
-            <th className="py-2">Type</th>
-            <th className="py-2">Brand</th>
-            <th className="py-2">Strength</th>
-            <th className="py-2">Expire Date</th>
-            <th className="py-2">Price of Sell</th>
-            <th className="py-2">Price of Buy</th>
-            <th className="py-2">Quantity</th>
-            <th className="py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {medicines.length > 0 ? (
-            medicines.map((medicine, index) => (
-              <tr key={index}>
-                <td className="border px-4 py-2">{medicine.medicine_name}</td>
-                <td className="border px-4 py-2">{medicine.category}</td>
-                <td className="border px-4 py-2">{medicine.type}</td>
-                <td className="border px-4 py-2">{medicine.brand}</td>
-                <td className="border px-4 py-2">{medicine.strength}</td>
-                <td className="border px-4 py-2">{medicine.exp_date}</td>
-                <td className="border px-4 py-2">{medicine.price_of_sell}</td>
-                <td className="border px-4 py-2">{medicine.price_of_buy}</td>
-                <td className="border px-4 py-2">{medicine.quantity}</td>
-                <td className="border px-4 py-2">
-                  <button onClick={() => handleEditClick(medicine)} className="bg-blue-500 text-white px-4 py-2">Edit</button>
+    <div className="p-4">
+      {/*<h1 className="text-3xl font-bold mb-6 text-gray-800">Product List</h1>*/}
+      <div className="flex justify-between mb-6">
+        <div className="relative">
+          <FontAwesomeIcon icon={faFilter} className="absolute left-3 top-3 text-gray-400" />
+          <select
+            value={searchField}
+            onChange={handleSearchFieldChange}
+            className="border pl-10 pr-4 py-2 rounded shadow-sm focus:ring focus:outline-none"
+          >
+            <option value="all">All</option>
+            <option value="product_name">Product Name</option>
+            <option value="category">Category</option>
+            <option value="generic_name">Generic Name</option>
+            <option value="dosage_type">Dosage</option>
+            <option value="brand">Brand</option>
+            <option value="supplier">Supplier</option>
+          </select>
+        </div>
+        <div className="relative">
+          <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-3 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder={`Search by ${searchField.replace('_', ' ')}`}
+            className="border pl-10 pr-4 py-2 rounded shadow-sm focus:ring focus:outline-none"
+          />
+        </div>
+        <button
+          onClick={handleAddClick}
+          className="bg-green-500 text-white px-4 py-2 rounded shadow-sm"
+        >
+          Add Product
+        </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white shadow-md rounded-lg">
+          <thead>
+            <tr className="bg-gray-200 text-gray-700">
+              <th className="py-3 px-6 text-left">Product Name</th>
+              <th className="py-3 px-6 text-left">Expiration Date</th>
+              <th className="py-3 px-6 text-left">Purchase Price</th>
+              <th className="py-3 px-6 text-left">Sell Price</th>
+              <th className="py-3 px-6 text-left">Quantity</th>
+              <th className="py-3 px-6 text-left">Generic Name</th>
+              <th className="py-3 px-6 text-left">Category</th>
+              <th className="py-3 px-6 text-left">Dosage Type</th>
+              <th className="py-3 px-6 text-left">Brand</th>
+              <th className="py-3 px-6 text-left">Supplier</th>
+              <th className="py-3 px-6 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.product_id} className="hover:bg-gray-100">
+                <td className="py-3 px-6 border-b">{product.product_name}</td>
+                <td className="py-3 px-6 border-b">{product.exp_date.split('T')[0]}</td>
+                <td className="py-3 px-6 border-b">Rs. {product.purchase_price}</td>
+                <td className="py-3 px-6 border-b">Rs. {product.sell_price}</td>
+                <td className="py-3 px-6 border-b">{product.quantity}</td>
+                <td className="py-3 px-6 border-b">{product.generic_name}</td>
+                <td className="py-3 px-6 border-b">{product.category}</td>
+                <td className="py-3 px-6 border-b">{product.dosage_type}</td>
+                <td className="py-3 px-6 border-b">{product.brand}</td>
+                <td className="py-3 px-6 border-b">{product.supplier}</td>
+                <td className="py-3 px-6 border-b">
+                  <button
+                    onClick={() => handleEditClick(product.product_id)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product.product_id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td className="border px-4 py-2" colSpan="10">No medicines available</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {editingMedicine && (
-        <form onSubmit={handleUpdateSubmit} className="mt-4">
-          <h2 className="text-xl font-bold mb-4">Update Medicine</h2>
-          <div className="mb-2">
-            <label className="block mb-1">Medicine Name</label>
-            <input type="text" name="medicine_name" value={formData.medicine_name} onChange={handleInputChange} className="w-full p-2 border" required />
+      {editingProductId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg max-h-[80vh] overflow-auto">
+            <EditProductForm
+              product_id={String(editingProductId)}
+              onClose={handleCloseEditProduct}
+              fetchProducts={fetchProducts}
+            />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">Category</label>
-            <input type="text" name="category" value={formData.category} onChange={handleInputChange} className="w-full p-2 border" required />
+        </div>
+      )}
+
+      {showAddProduct && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg max-h-[80vh] overflow-auto">
+            <AddProduct onClose={handleCloseAddProduct} />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">Type</label>
-            <input type="text" name="type" value={formData.type} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Brand</label>
-            <input type="text" name="brand" value={formData.brand} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Strength</label>
-            <input type="text" name="strength" value={formData.strength} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Expire Date</label>
-            <input type="date" name="exp_date" value={formData.exp_date} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Price of Sell</label>
-            <input type="number" name="price_of_sell" value={formData.price_of_sell} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Price of Buy</label>
-            <input type="number" name="price_of_buy" value={formData.price_of_buy} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <div className="mb-2">
-            <label className="block mb-1">Quantity</label>
-            <input type="number" name="quantity" value={formData.quantity} onChange={handleInputChange} className="w-full p-2 border" required />
-          </div>
-          <button type="submit" className="bg-green-500 text-white px-4 py-2">Update</button>
-        </form>
+        </div>
       )}
     </div>
   );
 };
 
-export default MedicineTable;
+export default ProductList;

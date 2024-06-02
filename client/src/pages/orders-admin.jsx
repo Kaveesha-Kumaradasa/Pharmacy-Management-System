@@ -1,12 +1,13 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const OrdersAdmin = () => {
-    // Your code here
+  const [suppliers, setSuppliers] = useState([]);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [orderItems, setOrderItems] = useState([]);
+  const [orders, setOrders] = useState([]);
 
-<<<<<<< Updated upstream
-    return (
-        <React.Fragment>
-=======
   useEffect(() => {
     axios.get('http://localhost:8800/server/orders/suppliers')
       .then(response => setSuppliers(response.data))
@@ -90,15 +91,29 @@ const OrdersAdmin = () => {
         </select>
       </div>
       {selectedSupplier && (
->>>>>>> Stashed changes
         <div>
-            <h1>order</h1>
-            {/* Add your dashboard content here */}
+          <h2 className="text-xl mb-4">Products</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {products.map(product => (
+              <div key={product.product_id} className="border p-4 rounded">
+                <div className="mb-2">{product.product_name}</div>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Quantity"
+                  onChange={e => handleQuantityChange(product.product_id, e.target.value)}
+                  className="p-2 border rounded w-full"
+                />
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={handleSubmit}
+            className="mt-4 p-2 bg-blue-500 text-white rounded"
+          >
+            Send Order
+          </button>
         </div>
-<<<<<<< Updated upstream
-        </React.Fragment>
-    );
-=======
       )}
 
       <h2 className="text-xl mt-8">Orders</h2>
@@ -132,7 +147,6 @@ const OrdersAdmin = () => {
       </div>
     </div>
   );
->>>>>>> Stashed changes
 };
 
 export default OrdersAdmin;

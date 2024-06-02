@@ -1,73 +1,147 @@
 import { db } from '../db.js';
 
-export const getAllMedicines = async (req, res) => {
-  const sql = `
-    SELECT 
-      m.generic AS medicine_name,
-      c.name AS category,
-      dt.name AS type,
-      b.name AS brand,
-      mb.strength,
-      s.exp_date,
-      s.price_of_sell,
-      s.price_of_buy,
-      s.quantity
-    FROM 
-      medicine m
-    JOIN 
-      category c ON m.cat_id = c.cat_id
-    JOIN 
-      med_brand mb ON m.med_id = mb.med_id
-    JOIN 
-      brand b ON mb.brand_id = b.brand_id
-    JOIN 
-      dosage_type dt ON mb.type_id = dt.type_id
-    JOIN 
-      stock s ON m.med_id = s.med_id AND mb.brand_id = s.brand_id AND mb.type_id = s.type_id AND mb.strength = s.strength;
+export const getAllProducts = (req, res) => {
+  const { searchField, searchQuery } = req.query;
+
+  let query = `
+    SELECT p.product_id, p.product_name, p.exp_date, p.purchase_price, p.sell_price, p.quantity, m.generic_name, c.name as category, d.name as dosage_type, b.name as brand, u.name as supplier
+    FROM product p
+    JOIN medicine m ON p.generic_id = m.generic_id
+    JOIN category c ON p.cat_id = c.cat_id
+    JOIN dosage_type d ON p.type_id = d.type_id
+    JOIN brand b ON p.brand_id = b.brand_id
+    JOIN users u ON p.supplier_id = u.user_id
   `;
 
-  db.query(sql, (err, data) => {
-    if (err) {
-      console.error('Error fetching data', err);
-      return res.status(500).json({ error: "Error fetching data" });
-    }
-    return res.json(data);
+  if (searchField && searchQuery && searchField !== 'all') {
+    query += ` WHERE ${
+      searchField === 'category' ? 'c.name' :
+      searchField === 'generic_name' ? 'm.generic_name' :
+      searchField === 'dosage_type' ? 'd.name' :
+      searchField === 'brand' ? 'b.name' :
+      searchField === 'supplier' ? 'u.name' :
+      'p.product_name'
+    } LIKE ?`;
+  }
+
+  const queryParams = searchField && searchQuery && searchField !== 'all' ? [`${searchQuery}%`] : [];
+
+  db.query(query, queryParams, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
   });
 };
 
-
-
-// Update medicine
-export const updateMedicine = async (req, res) => {
-  const id = req.params.id;
-  const { medicine_name, category, type, brand, strength, exp_date, price_of_sell, price_of_buy, quantity } = req.body;
-
-  const updateQuery = `
-    UPDATE medicine m
-    JOIN category c ON m.cat_id = c.cat_id
-    JOIN med_brand mb ON m.med_id = mb.med_id
-    JOIN brand b ON mb.brand_id = b.brand_id
-    JOIN dosage_type dt ON mb.type_id = dt.type_id
-    JOIN stock s ON m.med_id = s.med_id AND mb.brand_id = s.brand_id AND mb.type_id = s.type_id AND mb.strength = s.strength
-    SET 
-      m.generic = ?,
-      c.name = ?,
-      dt.name = ?,
-      b.name = ?,
-      mb.strength = ?,
-      s.exp_date = ?,
-      s.price_of_sell = ?,
-      s.price_of_buy = ?,
-      s.quantity = ?
-    WHERE m.med_id = ?;
-  `;
-
-  db.query(updateQuery, [medicine_name, category, type, brand, strength, exp_date, price_of_sell, price_of_buy, quantity, id], (err, result) => {
-    if (err) {
-      console.error('Error updating medicine', err);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      res.status(200).json({ message: 'Medicine updated successfully' });
-    }
+export const getCategories = (req, res) => {
+  const query = 'SELECT * FROM category';
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
   });
 };
+
+// Get all dosage types
+export const getDosageTypes = (req, res) => {
+  const query = 'SELECT * FROM dosage_type';
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
+// Get all brands
+export const getBrands = (req, res) => {
+  const query = 'SELECT * FROM brand';
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
+// Get all generics
+export const getGenerics = (req, res) => {
+  const query = 'SELECT * FROM medicine';
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
+// Get all suppliers
+export const getSuppliers = (req, res) => {
+  const query = 'SELECT * FROM users WHERE role_id = "3"';
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
+// Get product by id
+export const getProductById = (req, res) => {
+  const { product_id } = req.params;
+  const query = 'SELECT * FROM product WHERE product_id = ?';
+  db.query(query, [product_id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ message: 'Product not found' });
+    res.json(results[0]);
+  });
+};
+
+export const createProduct = (req, res) => {
+  const { product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id } = req.body;
+
+  console.log('Received payload:', req.body);
+
+  if (!product_name || !exp_date || !purchase_price || !sell_price || !quantity || !generic_id || !cat_id || !type_id || !brand_id || !supplier_id) {
+    console.error('Missing required fields');
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const query = 'INSERT INTO product (product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  
+  console.log('Executing query:', query);
+  console.log('With values:', [product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id]);
+
+  db.query(query, [product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id], (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err.message);
+      console.error('SQL Error Code:', err.code);
+      console.error('SQL Error Details:', err.sqlMessage);
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
+    res.status(201).json({ message: 'Product created successfully', id: results.insertId });
+  });
+};
+
+// Update product
+export const updateProduct = (req, res) => {
+  const { product_id } = req.params;
+  const { exp_date, purchase_price, sell_price, quantity } = req.body;
+  const query = 'UPDATE product SET exp_date = ?, purchase_price = ?, sell_price = ?, quantity = ? WHERE product_id = ?';
+  db.query(query, [exp_date, purchase_price, sell_price, quantity, product_id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.affectedRows === 0) return res.status(404).json({ message: 'Product not found' });
+    res.json({ message: 'Product updated successfully' });
+  });
+};
+
+export const deleteProduct = (req, res) => {
+  const { product_id } = req.params;
+  const query = 'DELETE FROM product WHERE product_id = ?';
+
+  console.log(`Attempting to delete product with id: ${product_id}`);
+
+  db.query(query, [product_id], (err, results) => {
+    if (err) {
+      console.error('Error deleting product:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    if (results.affectedRows === 0) {
+      console.warn('Product not found with id:', product_id);
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    console.log('Product deleted successfully with id:', product_id);
+    res.json({ message: 'Product deleted successfully' });
+  });
+};
+

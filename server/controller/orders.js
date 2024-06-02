@@ -112,6 +112,7 @@ export const getOrdersBySupplier = (req, res) => {
 };
 
 
+
 // controllers/orders.js
 
 export const getOrdersByAdmin = (req, res) => {
@@ -184,5 +185,4 @@ export const updateOrderDeliveryStatus = (req, res) => {
     }
   });
 };
-
 

@@ -1,16 +1,7 @@
-import React from 'react';
+import  { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const SupOrder = () => {
-<<<<<<< Updated upstream
-    return (
-        <React.Fragment>
-        <div>
-            <h1>Dashboard</h1>
-            {/* Add your dashboard content here */}
-        </div>
-        </React.Fragment>
-    );
-=======
   const [orders, setOrders] = useState([]);
   const [supplierId, setSupplierId] = useState(null);
 
@@ -89,7 +80,6 @@ const SupOrder = () => {
       </div>
     </div>
   );
->>>>>>> Stashed changes
 };
 
 export default SupOrder;

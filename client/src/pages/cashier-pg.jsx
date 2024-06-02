@@ -1,8 +1,7 @@
 import React from 'react';
 import Navbar from '../components/nav-bar.jsx';
-import SideBar from '../components/side-bar-ca.jsx';
+import SideBarC from '../components/side-bar-ca.jsx';
 import CashierNav from '../components/cashier-nav.jsx';
-
 
 function CashierPg() {
     return (
@@ -13,22 +12,16 @@ function CashierPg() {
                     <Navbar/>   
                 </div>
             </section>
-         <section>
-                <div className='grid grid-cols-12'>
-                <div className='col-span-1 bg-sky-900 h-screen pl-1 md:col-span-2'>
-                    <SideBar/>
+            <section>
+                <div className='flex'>
+                    <div className='w-1/12 bg-sky-600 h-screen'>
+                        <SideBarC/>
+                    </div>
+                    <div className='flex-1 h-screen pl-2'>
+                        <CashierNav/>
+                    </div>
                 </div>
-
-                <div className='col-span-9 h-screen pl-2 md:col-span-10'>
-              <CashierNav/>
-                </div>
-               
-
-                </div>
-
-
             </section>
-
         </React.Fragment>
     );
 }
