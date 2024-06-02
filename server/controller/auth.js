@@ -45,7 +45,7 @@ export const login = (req, res) => {
         if (password !== user.password) return res.status(400).json("Wrong password!");
   
         // Generate token
-        const token = jwt.sign({ id: user.user_id, role: user.role_id }, 'your_jwt_secret_key', { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.user_id, role: user.role_id }, 'your_jwt_secret_key', { expiresIn: '5h' });
   
         // Include user_id in the response
         res.status(200).json({ token, id: user.user_id, role_id: user.role_id });

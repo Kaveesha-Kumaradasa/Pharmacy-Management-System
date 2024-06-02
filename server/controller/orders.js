@@ -30,9 +30,10 @@ export const getProductsBySupplier = (req, res) => {
   });
 };
 
+// controllers/orders.js
 export const createOrder = (req, res) => {
   const { supplierId, products } = req.body;
-  const queryOrder = 'INSERT INTO orders (supplier_id) VALUES (?)';
+  const queryOrder = 'INSERT INTO orders (supplier_id, date) VALUES (?, NOW())';
   db.query(queryOrder, [supplierId], (err, result) => {
     if (err) {
       console.error('Error creating order:', err);
@@ -55,10 +56,10 @@ export const createOrder = (req, res) => {
 
 export const getOrdersBySupplier = (req, res) => {
   const { supplier_id } = req.query;
-  const user_id = req.headers['user-id']; // Assume user_id is passed in the request headers
-  const role_id = req.headers['role-id']; // Assume role_id is passed in the request headers
+  const user_id = req.headers['user-id'];
+  const role_id = req.headers['role-id'];
 
-  if (role_id !== '3') { // 3 is the role_id for suppliers
+  if (role_id !== '3') {
     return res.status(403).json({ error: 'Access denied' });
   }
 
@@ -67,6 +68,7 @@ export const getOrdersBySupplier = (req, res) => {
   const query = `
     SELECT 
       orders.order_id, 
+      orders.date, 
       order_detail.product_id, 
       product.product_name, 
       order_detail.quantity
@@ -87,12 +89,13 @@ export const getOrdersBySupplier = (req, res) => {
       console.error('Error executing query:', err.message);
       res.status(500).json({ error: err.message });
     } else {
-      // Group orders by order_id
+      console.log('Query results:', results);
       const ordersMap = results.reduce((acc, row) => {
-        const { order_id, product_id, product_name, quantity } = row;
+        const { order_id, date, product_id, product_name, quantity } = row;
         if (!acc[order_id]) {
           acc[order_id] = {
             order_id,
+            date,
             products: []
           };
         }
@@ -101,7 +104,6 @@ export const getOrdersBySupplier = (req, res) => {
       }, {});
 
       const orders = Object.values(ordersMap);
-
       res.json(orders);
     }
   });
@@ -110,10 +112,10 @@ export const getOrdersBySupplier = (req, res) => {
 // controllers/orders.js
 
 export const getOrdersByAdmin = (req, res) => {
-  const user_id = req.headers['user-id']; // Assume user_id is passed in the request headers
-  const role_id = req.headers['role-id']; // Assume role_id is passed in the request headers
+  const user_id = req.headers['user-id'];
+  const role_id = req.headers['role-id'];
 
-  if (role_id !== '1') { // 1 is the role_id for admin users
+  if (role_id !== '1') {
     return res.status(403).json({ error: 'Access denied' });
   }
 
@@ -121,6 +123,7 @@ export const getOrdersByAdmin = (req, res) => {
     SELECT 
       orders.order_id, 
       orders.supplier_id,
+      orders.date,
       users.name as supplier_name,
       order_detail.product_id, 
       product.product_name, 
@@ -142,13 +145,13 @@ export const getOrdersByAdmin = (req, res) => {
       console.error('Error fetching orders for admin:', err);
       res.status(500).json({ error: err.message });
     } else {
-      // Group orders by order_id
       const ordersMap = results.reduce((acc, row) => {
-        const { order_id, supplier_name, product_id, product_name, quantity } = row;
+        const { order_id, supplier_name, date, product_id, product_name, quantity } = row;
         if (!acc[order_id]) {
           acc[order_id] = {
             order_id,
             supplier_name,
+            date,
             products: []
           };
         }
@@ -162,5 +165,4 @@ export const getOrdersByAdmin = (req, res) => {
     }
   });
 };
-
 

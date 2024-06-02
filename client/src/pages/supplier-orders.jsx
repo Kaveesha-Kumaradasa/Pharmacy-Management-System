@@ -44,6 +44,7 @@ const SupOrder = () => {
           orders.map((order, index) => (
             <div key={index} className="border p-4 rounded">
               <div><strong>Order ID:</strong> {order.order_id}</div>
+              <div><strong>Order Date:</strong> {new Date(order.date).toLocaleString()}</div>
               <div>
                 <strong>Products:</strong>
                 <ul>

@@ -58,7 +58,7 @@ const OrdersAdmin = () => {
       .then(response => {
         if (response.data.message) {
           alert(response.data.message);
-          fetchOrders(); // Refresh orders after submitting
+          fetchOrders();
         } else {
           console.error('Unexpected response from server:', response);
         }
@@ -113,6 +113,7 @@ const OrdersAdmin = () => {
           <div key={order.order_id} className="border p-4 rounded">
             <div><strong>Order ID:</strong> {order.order_id}</div>
             <div><strong>Supplier Name:</strong> {order.supplier_name}</div>
+            <div><strong>Order Date:</strong> {new Date(order.date).toLocaleString()}</div>
             <div>
               <strong>Products:</strong>
               <ul>
