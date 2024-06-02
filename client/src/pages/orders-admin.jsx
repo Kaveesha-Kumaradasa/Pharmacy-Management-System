@@ -1,3 +1,4 @@
+// OrdersAdmin.jsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -27,17 +28,26 @@ const OrdersAdmin = () => {
   }, []);
 
   const fetchOrders = () => {
+    const userId = localStorage.getItem('user_id');
+    const roleId = localStorage.getItem('role_id');
+
+    console.log('User ID:', userId);
+    console.log('Role ID:', roleId);
+
     axios.get('http://localhost:8800/server/orders/admin/orders', {
       headers: {
-        'user-id': localStorage.getItem('user_id'),
-        'role-id': localStorage.getItem('role_id')
+        'user-id': userId,
+        'role-id': roleId
       }
     })
       .then(response => {
         console.log('Fetched orders:', response.data);
         setOrders(response.data);
       })
-      .catch(error => console.error('Error fetching orders:', error));
+      .catch(error => {
+        console.error('Error fetching orders:', error);
+        console.log('Full error response:', error.response); // Log full error response for debugging
+      });
   };
 
   const handleQuantityChange = (productId, quantity) => {
@@ -124,6 +134,7 @@ const OrdersAdmin = () => {
             <div><strong>Supplier Name:</strong> {order.supplier_name}</div>
             <div><strong>Order Date:</strong> {new Date(order.date).toLocaleString()}</div>
             <div><strong>Order Status:</strong> {order.status}</div>
+            {order.status && <div><strong>Delivery Status:</strong> {order.status}</div>} {/* Display delivery status if available */}
             <div>
               <strong>Products:</strong>
               <ul>

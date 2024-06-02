@@ -119,6 +119,8 @@ export const getOrdersByAdmin = (req, res) => {
   const user_id = req.headers['user-id'];
   const role_id = req.headers['role-id'];
 
+  console.log(`Received request from user_id: ${user_id} with role_id: ${role_id}`);
+
   if (role_id !== '1') {
     return res.status(403).json({ error: 'Access denied' });
   }
@@ -151,7 +153,7 @@ export const getOrdersByAdmin = (req, res) => {
       res.status(500).json({ error: err.message });
     } else {
       const ordersMap = results.reduce((acc, row) => {
-        const { order_id, supplier_name, date, status, product_id, product_name, quantity } = row;
+        const { order_id, supplier_name, date, product_id, product_name, quantity,status } = row;
         if (!acc[order_id]) {
           acc[order_id] = {
             order_id,
@@ -166,10 +168,12 @@ export const getOrdersByAdmin = (req, res) => {
       }, {});
 
       const orders = Object.values(ordersMap);
+
       res.json(orders);
     }
   });
 };
+
 
 // controllers/orders.js
 
