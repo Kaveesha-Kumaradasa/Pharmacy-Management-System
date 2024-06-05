@@ -1,4 +1,3 @@
-// src/pages/ExpiredMedicine.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 

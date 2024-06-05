@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const AddProduct = ({ onClose }) => {
   const [product, setProduct] = useState({
+    batch_number: '',
     product_name: '',
     exp_date: '',
     purchase_price: '',
@@ -68,6 +69,17 @@ const AddProduct = ({ onClose }) => {
     <div>
       <h1 className="text-2xl font-bold mb-4">Add Product</h1>
       <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-auto">
+      <div>
+          <label className="block text-gray-700">Batch Number</label>
+          <input
+            type="text"
+            name="batch_number"
+            value={product.batch_number}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none"
+            required
+          />
+        </div>
         <div>
           <label className="block text-gray-700">Product Name</label>
           <input

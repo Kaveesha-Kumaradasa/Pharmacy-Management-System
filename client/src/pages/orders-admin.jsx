@@ -1,4 +1,3 @@
-// OrdersAdmin.jsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -31,23 +30,14 @@ const OrdersAdmin = () => {
     const userId = localStorage.getItem('user_id');
     const roleId = localStorage.getItem('role_id');
 
-    console.log('User ID:', userId);
-    console.log('Role ID:', roleId);
-
     axios.get('http://localhost:8800/server/orders/admin/orders', {
       headers: {
         'user-id': userId,
         'role-id': roleId
       }
     })
-      .then(response => {
-        console.log('Fetched orders:', response.data);
-        setOrders(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching orders:', error);
-        console.log('Full error response:', error.response); // Log full error response for debugging
-      });
+      .then(response => setOrders(response.data))
+      .catch(error => console.error('Error fetching orders:', error));
   };
 
   const handleQuantityChange = (productId, quantity) => {
@@ -79,10 +69,104 @@ const OrdersAdmin = () => {
   const handleDeliveryStatus = (orderId) => {
     axios.put(`http://localhost:8800/server/orders/delivery/status`, { orderId, status: 'delivered' })
       .then(response => {
-        console.log('Delivery status updated:', response.data);
-        fetchOrders(); // Refresh orders to show the updated status
+        fetchOrders();
+        console.log(response.data);
       })
       .catch(error => console.error('Error updating delivery status:', error));
+  };
+
+  const printOrderDetails = (order) => {
+    const printableContent = `
+      <html>
+        <head>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+  
+            body {
+              font-family: 'Poppins', sans-serif;
+              background-color: #f7f7f7;
+              padding: 20px;
+            }
+  
+            .container {
+              max-width: 800px;
+              margin: auto;
+              background-color: #fff;
+              padding: 30px;
+              border-radius: 10px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+  
+            .title {
+              font-size: 24px;
+              font-weight: 700;
+              color: #333;
+              margin-bottom: 20px;
+            }
+  
+            .subtitle {
+              font-size: 16px;
+              font-weight: 500;
+              color: #666;
+              margin-bottom: 10px;
+            }
+  
+            .order-details {
+              margin-bottom: 30px;
+            }
+  
+            .product-list {
+              margin-bottom: 20px;
+            }
+  
+            .product-item {
+              margin-bottom: 10px;
+            }
+  
+            .product-name {
+              font-weight: bold;
+            }
+  
+            .footer {
+              text-align: center;
+              margin-top: 30px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="title">Order Details</div>
+            <div class="order-details">
+              <div class="subtitle">Order ID:</div>
+              <div>${order.order_id}</div>
+              <div class="subtitle">Supplier Name:</div>
+              <div>${order.supplier_name}</div>
+              <div class="subtitle">Order Date:</div>
+              <div>${new Date(order.date).toLocaleString()}</div>
+            </div>
+            <div class="product-list">
+              <div class="subtitle">Products:</div>
+              ${order.products.map(product => `
+                <div class="product-item">
+                  <div class="product-name">${product.product_name}</div>
+                  <div>Quantity: ${product.quantity}</div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="footer">
+              <p>NIROGYA PHARMCY</p>
+              <p>NO: MEENNANA ,GETAHETTA</p>
+              <p>TEL : 077 2515537</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(printableContent);
+    newWindow.document.close();
+    newWindow.print();
   };
 
   return (
@@ -153,6 +237,12 @@ const OrdersAdmin = () => {
                 Mark as Delivered
               </button>
             )}
+            <button
+              onClick={() => printOrderDetails(order)}
+              className="mt-2 p-2 bg-blue-500 text-white rounded"
+            >
+              Print Order Details
+            </button>
           </div>
         ))}
       </div>

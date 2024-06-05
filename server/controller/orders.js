@@ -106,6 +106,10 @@ export const getOrdersBySupplier = (req, res) => {
       }, {});
 
       const orders = Object.values(ordersMap);
+
+      // Sort the orders in descending order based on the 'date' field
+      orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+
       res.json(orders);
     }
   });
@@ -153,7 +157,7 @@ export const getOrdersByAdmin = (req, res) => {
       res.status(500).json({ error: err.message });
     } else {
       const ordersMap = results.reduce((acc, row) => {
-        const { order_id, supplier_name, date, product_id, product_name, quantity,status } = row;
+        const { order_id, supplier_name, date, product_id, product_name, quantity, status } = row;
         if (!acc[order_id]) {
           acc[order_id] = {
             order_id,
@@ -168,6 +172,9 @@ export const getOrdersByAdmin = (req, res) => {
       }, {});
 
       const orders = Object.values(ordersMap);
+
+      // Sort the orders in descending order based on the 'date' field
+      orders.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       res.json(orders);
     }

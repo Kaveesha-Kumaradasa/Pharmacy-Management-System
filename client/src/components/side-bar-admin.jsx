@@ -1,4 +1,4 @@
-import {  FaPills, FaShoppingCart, FaUsers, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
+import { FaPills, FaShoppingCart, FaUsers,  FaClipboardList, FaBell } from 'react-icons/fa';
 import { MdLocalPharmacy, MdDashboard } from 'react-icons/md';
 import { HiOutlineDocumentReport } from 'react-icons/hi';
 
@@ -29,14 +29,14 @@ export const SidebarAdmin = [
     icon: <FaUsers />
   },
   {
-    title: "Others",
-    path: "/admin/others",
+    title: "Reports",
+    path: "/admin/reports",
     icon: <FaClipboardList />
   },
   {
-    title: "Expiration Near Med",
-    path: "/admin/expired-medicine",
-    icon: <FaExclamationTriangle />
+    title: "Notification",
+    path: "/admin/notification",
+    icon: <FaBell />
   },
 ]
 

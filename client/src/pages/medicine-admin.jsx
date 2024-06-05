@@ -26,15 +26,6 @@ const ProductList = () => {
       console.error('Error fetching products:', error);
     }
   };
-  
-  const handleDelete = async (product_id) => {
-    try {
-      await axios.delete(`http://localhost:8800/server/med-admin/product/${product_id}`);
-      setProducts(products.filter((product) => product.product_id !== product_id));
-    } catch (error) {
-      console.error('Error deleting product:', error);
-    }
-  };
 
   const handleEditClick = (product_id) => {
     setEditingProductId(product_id);
@@ -67,7 +58,6 @@ const ProductList = () => {
 
   return (
     <div className="p-4">
-      {/*<h1 className="text-3xl font-bold mb-6 text-gray-800">Product List</h1>*/}
       <div className="flex justify-between mb-6">
         <div className="relative">
           <FontAwesomeIcon icon={faFilter} className="absolute left-3 top-3 text-gray-400" />
@@ -106,6 +96,7 @@ const ProductList = () => {
         <table className="min-w-full bg-white shadow-md rounded-lg">
           <thead>
             <tr className="bg-gray-200 text-gray-700">
+              <th className="py-3 px-6 text-left">Batch No</th>
               <th className="py-3 px-6 text-left">Product Name</th>
               <th className="py-3 px-6 text-left">Expiration Date</th>
               <th className="py-3 px-6 text-left">Purchase Price</th>
@@ -121,7 +112,8 @@ const ProductList = () => {
           </thead>
           <tbody>
             {products.map((product) => (
-              <tr key={product.product_id} className="hover:bg-gray-100">
+              <tr key={product.batch_number} className="hover:bg-gray-100">
+                <td className="py-3 px-6 border-b">{product.batch_number}</td>
                 <td className="py-3 px-6 border-b">{product.product_name}</td>
                 <td className="py-3 px-6 border-b">{product.exp_date.split('T')[0]}</td>
                 <td className="py-3 px-6 border-b">Rs. {product.purchase_price}</td>
@@ -135,15 +127,9 @@ const ProductList = () => {
                 <td className="py-3 px-6 border-b">
                   <button
                     onClick={() => handleEditClick(product.product_id)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                    className="bg-yellow-500 text-white px-4 py-2 rounded"
                   >
                     Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.product_id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    Delete
                   </button>
                 </td>
               </tr>

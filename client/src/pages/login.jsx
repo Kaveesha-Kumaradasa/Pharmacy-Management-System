@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/pharmacy.png';
 
@@ -103,11 +103,11 @@ export default function Login() {
               </button>
             </div>
           </form>
-          <div className="mt-6 text-center">
+          {/*<div className="mt-6 text-center">
             <Link to="/register" className="font-medium text-sky-600 hover:text-sky-500">
               SignUp to Login
             </Link>
-          </div>
+  </div>*/}
         </div>
       </div>
     </div>

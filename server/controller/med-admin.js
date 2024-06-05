@@ -4,7 +4,7 @@ export const getAllProducts = (req, res) => {
   const { searchField, searchQuery } = req.query;
 
   let query = `
-    SELECT p.product_id, p.product_name, p.exp_date, p.purchase_price, p.sell_price, p.quantity, m.generic_name, c.name as category, d.name as dosage_type, b.name as brand, u.name as supplier
+    SELECT p.batch_number, p.product_id, p.product_name, p.exp_date, p.purchase_price, p.sell_price, p.quantity, m.generic_name, c.name as category, d.name as dosage_type, b.name as brand, u.name as supplier
     FROM product p
     JOIN medicine m ON p.generic_id = m.generic_id
     JOIN category c ON p.cat_id = c.cat_id
@@ -88,21 +88,21 @@ export const getProductById = (req, res) => {
 };
 
 export const createProduct = (req, res) => {
-  const { product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id } = req.body;
+  const { batch_number,product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id } = req.body;
 
   console.log('Received payload:', req.body);
 
-  if (!product_name || !exp_date || !purchase_price || !sell_price || !quantity || !generic_id || !cat_id || !type_id || !brand_id || !supplier_id) {
+  if (!batch_number || !product_name || !exp_date || !purchase_price || !sell_price || !quantity || !generic_id || !cat_id || !type_id || !brand_id || !supplier_id) {
     console.error('Missing required fields');
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const query = 'INSERT INTO product (product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO product (batch_number, product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
   
   console.log('Executing query:', query);
-  console.log('With values:', [product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id]);
+  console.log('With values:', [batch_number, product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id]);
 
-  db.query(query, [product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id], (err, results) => {
+  db.query(query, [batch_number, product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id], (err, results) => {
     if (err) {
       console.error('Error executing query:', err.message);
       console.error('SQL Error Code:', err.code);

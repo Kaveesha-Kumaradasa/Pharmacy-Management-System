@@ -85,15 +85,28 @@ export const createBill = (req, res) => {
                     });
                   });
 
-                  // Commit transaction
-                  db.commit((err) => {
+                  // Get the cashier name
+                  const getCashierNameQuery = 'SELECT name FROM users WHERE role_id = 2';
+                  db.query(getCashierNameQuery, [user_id], (err, userResult) => {
                     if (err) {
                       db.rollback(() => {
-                        console.error('Error committing transaction:', err);
+                        console.error('Error fetching cashier name:', err);
                         res.status(500).json({ error: 'An error occurred while creating bill' });
                       });
                     } else {
-                      res.json({ message: 'Bill created successfully' });
+                      const cashierName = userResult[0].name;
+
+                      // Commit transaction
+                      db.commit((err) => {
+                        if (err) {
+                          db.rollback(() => {
+                            console.error('Error committing transaction:', err);
+                            res.status(500).json({ error: 'An error occurred while creating bill' });
+                          });
+                        } else {
+                          res.json({ message: 'Bill created successfully', cashier_name: cashierName });
+                        }
+                      });
                     }
                   });
                 }
@@ -115,10 +128,11 @@ export const createBill = (req, res) => {
 // Get products based on search query
 export const getProducts = (req, res) => {
   const { name } = req.query;
-  db.query('SELECT * FROM product WHERE product_name LIKE ?', [`%${name}%`], (err, results) => {
+  db.query('SELECT product_id, product_name, exp_date, sell_price, quantity AS available_quantity FROM product WHERE product_name LIKE ?', [`%${name}%`], (err, results) => {
     if (err) {
       return res.status(500).send(err);
     }
     res.json(results);
   });
 };
+
