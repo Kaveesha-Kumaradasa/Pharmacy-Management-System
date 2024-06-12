@@ -14,10 +14,10 @@ function CashierPg() {
             </section>
             <section>
                 <div className='flex'>
-                    <div className='w-1/12 bg-sky-600 h-screen'>
+                    <div className='w-1/6 bg-sky-600 h-screen'>
                         <SideBarC/>
                     </div>
-                    <div className='flex-1 h-screen pl-2'>
+                    <div className='flex-1 h-screen pl-2 overflow-auto'>
                         <CashierNav/>
                     </div>
                 </div>

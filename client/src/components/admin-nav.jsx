@@ -5,7 +5,7 @@ import Users from "../pages/users";
 import SupplierList from "../pages/suppliers";
 import OrdersAdmin from "../pages/orders-admin";
 import MedicineAdmin from "../pages/medicine-admin";  
-import ExpMed from "../pages/notification";
+import Notification from "../pages/notification";
 import Reports from "../pages/Reports";
 
 
@@ -21,7 +21,7 @@ function AdminNav() {
           <Route path="/orders-admin" element={<OrdersAdmin />} />
           <Route path="/suppliers" element={<SupplierList />} />
           <Route path="/users" element={<Users />} />
-          <Route path="/notification" element={<ExpMed />} />
+          <Route path="/notification" element={<Notification />} />
           <Route path="/reports" element={<Reports />} />
         </Routes>
       </section>

@@ -1,9 +1,8 @@
-// routes/productsRouter.js
 import express from 'express';
-import { getExpiringProducts } from '../controller/notification.js';
+import { getItems } from '../controller/notification.js';
 
 const router = express.Router();
 
-router.get('/', getExpiringProducts);
+router.get('/items', getItems);
 
 export default router;

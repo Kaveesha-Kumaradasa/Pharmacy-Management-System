@@ -1,48 +1,140 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { io } from 'socket.io-client';
+import PropTypes from 'prop-types';
 
-function ExpiredMedicine() {
-  const [products, setProducts] = useState([]);
+const socket = io.connect('http://localhost:8800'); // Update with your server URL
+
+export default function Notification({ onNewNotification }) {
+  const [items, setItems] = useState([]);
+  const itemsRef = useRef(items);
+  const [newNotifications, setNewNotifications] = useState(false);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    itemsRef.current = items;
+  }, [items]);
+
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:8800/server/expired-med');
-        setProducts(response.data);
+        const response = await axios.get("http://localhost:8800/server/notification/items");
+
+        const itemsWithMessage = response.data.map(item => {
+          let message = '';
+          const currentDate = new Date();
+          const expireDate = new Date(item.exp_date);
+
+          const diffInTime = expireDate.getTime() - currentDate.getTime();
+          const diffInDays = diffInTime / (1000 * 3600 * 24);
+
+          if (diffInDays <= 90) {
+            message = 'Expire date is close';
+          } else if (['tablets', 'capsules'].includes(item.dosage_type) && item.quantity < 100) {
+            message = 'Less stock';
+          } else if (item.quantity < 15) {
+            message = 'Less stock';
+          } else if (item.quantity === 0) {
+            message = 'Empty stock';
+          }
+
+          return { ...item, message };
+        });
+
+        setItems(itemsWithMessage.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)));
+        setNewNotifications(true);
+        onNewNotification(true);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error(error);
       }
     };
-    fetchProducts();
-  }, []);
+
+    fetchData();
+
+    const handleNewNotification = (newItem) => {
+      const itemsWithMessage = newItem.map(item => {
+        let message = '';
+        const currentDate = new Date();
+        const expireDate = new Date(item.exp_date);
+
+        const diffInTime = expireDate.getTime() - currentDate.getTime();
+        const diffInDays = diffInTime / (1000 * 3600 * 24);
+
+        if (diffInDays <= 90) {
+          message = 'Expire date is close';
+        } else if (['tablets', 'capsules'].includes(item.dosage_type) && item.quantity < 100) {
+          message = 'Less stock';
+        } else if (item.quantity < 15) {
+          message = 'Less stock';
+        } else if (item.quantity === 0) {
+          message = 'Empty stock';
+        }
+
+        return { ...item, message };
+      });
+
+      setItems(prevItems => [ ...itemsWithMessage, ...prevItems].sort((a, b) => new Date(a.created_at) - new Date(b.created_at)));
+      setNewNotifications(true);
+      onNewNotification(true);
+    };
+
+    socket.on('new_notification', handleNewNotification);
+
+    return () => {
+      socket.off('new_notification', handleNewNotification);
+      socket.disconnect();
+    };
+  }, [onNewNotification]);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Expired Medicine</h1>
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b">Supplier Name</th>
-            <th className="py-2 px-4 border-b">Product Name</th>
-            <th className="py-2 px-4 border-b">Expiration Date</th>
-            <th className="py-2 px-4 border-b">Category</th>
-            <th className="py-2 px-4 border-b">Brand</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.product_name}>
-              <td className="py-2 px-4 border-b">{product.supplier}</td>
-              <td className="py-2 px-4 border-b">{product.product_name}</td>
-              <td className="py-2 px-4 border-b">{product.exp_date}</td>
-              <td className="py-2 px-4 border-b">{product.category}</td>
-              <td className="py-2 px-4 border-b">{product.brand}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className='notification p-6'>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        Notification Items {newNotifications}
+      </h1>
+      {items.length === 0 ? (
+        <p className="text-center text-xl">No items found matching the criteria.</p>
+      ) : (
+        <div className='container mx-auto'>
+          <table className='table-auto w-full '>
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="px-4 py-2 border">Batch No</th>
+                <th className="px-4 py-2 border">Product Name</th>
+                <th className="px-4 py-2 border">Expiry Date</th>
+                <th className="px-4 py-2 border">Quantity</th>
+                <th className="px-4 py-2 border">Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => {
+                let messageColor = '';
+
+                if (item.message === 'Empty stock') {
+                  messageColor = 'text-red-500';
+                } else if (item.message === 'Less stock') {
+                  messageColor = 'text-red-500';
+                } else {
+                  messageColor = 'text-black-500';
+                }
+
+                const { batch_number, product_name, exp_date, quantity, message } = item;
+                return (
+                  <tr key={index} className="bg-white">
+                    <td className="px-4 py-2 border">{batch_number}</td>
+                    <td className="px-4 py-2 border">{product_name}</td>
+                    <td className="px-4 py-2 border">{new Date(exp_date).toLocaleDateString()}</td>
+                    <td className="px-4 py-2 border">{quantity}</td>
+                    <td className={`px-4 py-2 border font-bold ${messageColor}`}>{message}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
 
-export default ExpiredMedicine;
+Notification.propTypes = {
+    onNewNotification: PropTypes.func.isRequired,
+};

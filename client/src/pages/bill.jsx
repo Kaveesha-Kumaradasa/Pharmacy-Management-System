@@ -12,7 +12,12 @@ const Bill = () => {
   const searchProducts = async () => {
     try {
       const response = await axios.get('http://localhost:8800/server/billing/products', { params: { name: query } });
-      setResults(response.data);
+      // Filter results to only include products whose name starts with the query
+      const filteredResults = response.data.filter(product =>
+        product.product_name.toLowerCase().startsWith(query.toLowerCase())
+      );
+      setResults(filteredResults);
+      setQuery(''); // Clear the search query after search
     } catch (error) {
       console.error('Error searching products:', error);
     }
@@ -33,6 +38,7 @@ const Bill = () => {
     const newItem = { ...product, quantity: 1, total: parseFloat(product.sell_price).toFixed(2) };
     setItems([...items, newItem]);
     setTotal(parseFloat(total + parseFloat(newItem.total)).toFixed(2));
+    setResults([]); // Clear search results after adding an item
   };
 
   const updateItemQuantity = (index, quantity) => {
@@ -87,12 +93,12 @@ const Bill = () => {
         <head>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
+  
             body {
               font-family: 'Poppins', sans-serif;
               background-color: #f7f7f7;
             }
-
+  
             .invoice-box {
               max-width: 800px;
               margin: auto;
@@ -101,76 +107,92 @@ const Bill = () => {
               background-color: #fff;
               box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
-
+  
             .invoice-box table {
               width: 100%;
               line-height: inherit;
               text-align: left;
             }
-
+  
             .invoice-box table td {
               padding: 10px;
               vertical-align: top;
             }
-
+  
             .invoice-box table tr td:nth-child(2) {
               text-align: right;
             }
-
+  
             .invoice-box table tr.top table td {
               padding-bottom: 20px;
             }
-
+  
             .invoice-box table tr.information table td {
               padding-bottom: 40px;
             }
-
+  
             .invoice-box table tr.heading td {
               background-color: #f7f7f7;
               border-bottom: 1px solid #ddd;
               font-weight: bold;
               text-transform: uppercase;
             }
-
+  
             .invoice-box table tr.details td {
               padding-bottom: 20px;
             }
-
+  
             .invoice-box table tr.item td {
               border-bottom: 1px solid #eee;
             }
-
+  
             .invoice-box table tr.item.last td {
               border-bottom: none;
             }
-
+  
             .invoice-box table tr.total td:nth-child(2) {
               border-top: 2px solid #eee;
               font-weight: bold;
             }
-
+  
             .title {
               font-size: 24px;
               font-weight: 700;
               color: #333;
             }
-
+  
             .subtitle {
               font-size: 16px;
               font-weight: 500;
               color: #666;
             }
+  
+            .pharmacy-info {
+              text-align: center;
+              margin-bottom: 20px;
+            }
+  
+            .pharmacy-info p {
+              margin: 0;
+              font-size: 16px;
+              color: #333;
+            }
           </style>
         </head>
         <body>
           <div class="invoice-box">
+            <div class="pharmacy-info">
+              <p><strong>Nirogya Pharmacy</strong></p>
+              <p>NO:83 MEENNANA, GETAHETTA</p>
+              <p>TEL: 077 2515537</p>
+            </div>
             <table>
               <tr class="top">
                 <td colspan="4">
                   <table>
                     <tr>
                       <td class="title">
-                        <h1>Nirogya Pharmacy</h1>
+                        <h1>Invoice</h1>
                       </td>
                       <td>
                         <div class="subtitle">Invoice Date: ${invoiceDate}</div>
@@ -204,15 +226,16 @@ const Bill = () => {
         </body>
       </html>
     `;
-
+  
     const newWindow = window.open('', '_blank');
     newWindow.document.write(printableContent);
     newWindow.document.close();
     newWindow.print();
   };
+  
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg">
+    <div className="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg">
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Invoice</h1>
       <div className="mb-6">
         <label className="block text-gray-700 text-sm font-bold mb-2">Customer Name</label>
@@ -241,10 +264,7 @@ const Bill = () => {
           className="shadow border rounded flex-grow py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
         <button
-          onClick={() => {
-            searchProducts();
-            setQuery('');
-          }}
+          onClick={searchProducts}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-4"
         >
           Search

@@ -15,7 +15,7 @@ function AdminPg() {
             </section>
             <section>
                 <div className='flex'>
-                    <div className='w-1/12 bg-sky-600 h-screen'>
+                    <div className='w-1/6 bg-sky-600 h-screen'>
                         <SideBarA/>
                     </div>
                     <div className='flex-1 h-screen pl-2 overflow-auto'>

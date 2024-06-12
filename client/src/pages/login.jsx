@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/pharmacy.png';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -35,7 +36,7 @@ export default function Login() {
           break;
       }
     } catch (err) {
-      console.error('Login error:', err.response?.data?.error || 'An error occurred during login');
+      setError(err.response?.data?.error || 'An error occurred during login');
     }
   };
 
@@ -53,6 +54,7 @@ export default function Login() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && <div className="text-red-500 text-sm">{error}</div>}
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Username
@@ -75,11 +77,6 @@ export default function Login() {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <div className="text-sm">
-                  <a href="#" className="font-medium text-sky-600 hover:text-sky-500">
-                    Forgot password?
-                  </a>
-                </div>
               </div>
               <div className="mt-1">
                 <input
@@ -103,11 +100,6 @@ export default function Login() {
               </button>
             </div>
           </form>
-          {/*<div className="mt-6 text-center">
-            <Link to="/register" className="font-medium text-sky-600 hover:text-sky-500">
-              SignUp to Login
-            </Link>
-  </div>*/}
         </div>
       </div>
     </div>

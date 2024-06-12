@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
+
 
 const AddProduct = ({ onClose }) => {
   const [product, setProduct] = useState({
@@ -15,7 +15,8 @@ const AddProduct = ({ onClose }) => {
     cat_id: '',
     type_id: '',
     brand_id: '',
-    supplier_id: ''  // Ensure this is an ID
+    supplier_id: '',
+    drug_type_id: '', 
   });
 
   const [generics, setGenerics] = useState([]);
@@ -23,18 +24,20 @@ const AddProduct = ({ onClose }) => {
   const [dosageTypes, setDosageTypes] = useState([]);
   const [brands, setBrands] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [drugTypes, setDrugType] = useState([]);
 
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [genericRes, categoryRes, dosageTypeRes, brandRes, supplierRes] = await Promise.all([
+        const [genericRes, categoryRes, dosageTypeRes, brandRes, supplierRes, drugTypeRes] = await Promise.all([
           axios.get('http://localhost:8800/server/med-admin/product/generics'),
           axios.get('http://localhost:8800/server/med-admin/product/categories'),
           axios.get('http://localhost:8800/server/med-admin/product/dosage-types'),
           axios.get('http://localhost:8800/server/med-admin/product/brands'),
-          axios.get('http://localhost:8800/server/med-admin/product/suppliers')
+          axios.get('http://localhost:8800/server/med-admin/product/suppliers'),
+          axios.get('http://localhost:8800/server/med-admin/product/drug-types'),
         ]);
 
         setGenerics(genericRes.data);
@@ -42,6 +45,7 @@ const AddProduct = ({ onClose }) => {
         setDosageTypes(dosageTypeRes.data);
         setBrands(brandRes.data);
         setSuppliers(supplierRes.data);
+        setDrugType(drugTypeRes.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -59,7 +63,7 @@ const AddProduct = ({ onClose }) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:8800/server/med-admin/product', product);
-      navigate('admin/medicine-admin');
+      onClose();
     } catch (error) {
       console.error('Error adding product:', error);
     }
@@ -207,6 +211,21 @@ const AddProduct = ({ onClose }) => {
             <option value="">Select Supplier</option>
             {suppliers.map(supplier => (
               <option key={supplier.user_id} value={supplier.user_id}>{supplier.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-700">Drug Type</label>
+          <select
+            name="drug_type_id"
+            value={product.drug_type_id}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none"
+            required
+          >
+            <option value="">Select Drug Type</option>
+            {drugTypes.map(drugType => (
+              <option key={drugType.id} value={drugType.id}>{drugType.type_name}</option>
             ))}
           </select>
         </div>

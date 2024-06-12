@@ -17,7 +17,7 @@ const SupOrder = () => {
 
   useEffect(() => {
     if (supplierId) {
-      axios.get(`http://localhost:8800/server/orders/orders?supplier_id=${supplierId}`, {
+      axios.get(`http://localhost:8800/server/orders/supplier/orders?supplier_id=${supplierId}`, {
         headers: {
           'user-id': supplierId,
           'role-id': '3',
@@ -50,7 +50,7 @@ const SupOrder = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl mb-4">Supplier Interface - Pharmacy Management System</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Orders</h1>
       <h2 className="text-xl mb-4">Orders</h2>
       <div className="grid grid-cols-1 gap-4">
         {orders.length > 0 ? (

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import EditUserForm from './edit-user.jsx';
 
 const UsersTable = () => {
     const [users, setUsers] = useState([]);
-    const navigate = useNavigate(); // Initialize useNavigate
+    const [editUser, setEditUser] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get('http://localhost:8800/server/users/users')
@@ -17,12 +19,21 @@ const UsersTable = () => {
     }, []);
 
     const handleAddUser = () => {
-        navigate('/register'); // Navigate to the registration page
+        navigate('/register');
+    };
+
+    const handleEditUser = (user) => {
+        setEditUser(user);
+    };
+
+    const handleFormClose = () => {
+        setEditUser(null);
+        // Optionally, refresh users list here
     };
 
     return (
         <div className="container mx-auto my-8">
-            <h1 className="text-2xl font-bold mb-4">User Table</h1>
+            <h1 className="text-3xl font-bold mb-6 text-gray-800">User Table</h1>
             <button
                 onClick={handleAddUser}
                 className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
@@ -38,7 +49,7 @@ const UsersTable = () => {
                         <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Phone Number</th>
                         <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Role</th>
                         <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Username</th>
-                        <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Password</th>
+                        <th className="text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
                     </tr>
                 </thead>
                 <tbody className="text-gray-700">
@@ -50,11 +61,22 @@ const UsersTable = () => {
                             <td className="text-left py-3 px-4">{user.phone_number}</td>
                             <td className="text-left py-3 px-4">{user.role}</td>
                             <td className="text-left py-3 px-4">{user.username}</td>
-                            <td className="text-left py-3 px-4">{user.password}</td>
+                            <td className="text-left py-3 px-4">
+                                <button
+                                    onClick={() => handleEditUser(user)}
+                                    className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-700"
+                                >
+                                    Edit
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            {editUser && (
+                <EditUserForm user={editUser} onClose={handleFormClose} />
+            )}
         </div>
     );
 };

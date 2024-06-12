@@ -4,13 +4,14 @@ export const getAllProducts = (req, res) => {
   const { searchField, searchQuery } = req.query;
 
   let query = `
-    SELECT p.batch_number, p.product_id, p.product_name, p.exp_date, p.purchase_price, p.sell_price, p.quantity, m.generic_name, c.name as category, d.name as dosage_type, b.name as brand, u.name as supplier
+    SELECT p.batch_number, p.product_id, p.product_name, p.exp_date, p.purchase_price, p.sell_price, p.quantity, m.generic_name, c.name as category, d.name as dosage_type, b.name as brand, u.name as supplier,t.type_name as drug_type 
     FROM product p
     JOIN medicine m ON p.generic_id = m.generic_id
     JOIN category c ON p.cat_id = c.cat_id
     JOIN dosage_type d ON p.type_id = d.type_id
     JOIN brand b ON p.brand_id = b.brand_id
     JOIN users u ON p.supplier_id = u.user_id
+    JOIN drug_type t ON p.drug_type_id = t.id
   `;
 
   if (searchField && searchQuery && searchField !== 'all') {
@@ -20,6 +21,7 @@ export const getAllProducts = (req, res) => {
       searchField === 'dosage_type' ? 'd.name' :
       searchField === 'brand' ? 'b.name' :
       searchField === 'supplier' ? 'u.name' :
+      searchField === 'drug_type' ? 't.type_name' :
       'p.product_name'
     } LIKE ?`;
   }
@@ -76,6 +78,16 @@ export const getSuppliers = (req, res) => {
   });
 };
 
+// get all drug type
+export const getDrugTypes = (req, res) => {
+  const query = 'SELECT * FROM drug_type';
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
+
 // Get product by id
 export const getProductById = (req, res) => {
   const { product_id } = req.params;
@@ -88,21 +100,21 @@ export const getProductById = (req, res) => {
 };
 
 export const createProduct = (req, res) => {
-  const { batch_number,product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id } = req.body;
+  const { batch_number,product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id, drug_type_id } = req.body;
 
   console.log('Received payload:', req.body);
 
-  if (!batch_number || !product_name || !exp_date || !purchase_price || !sell_price || !quantity || !generic_id || !cat_id || !type_id || !brand_id || !supplier_id) {
+  if (!batch_number || !product_name || !exp_date || !purchase_price || !sell_price || !quantity || !generic_id || !cat_id || !type_id || !brand_id || !supplier_id || !drug_type_id)  {
     console.error('Missing required fields');
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const query = 'INSERT INTO product (batch_number, product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO product (batch_number, product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id, drug_type_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
   
   console.log('Executing query:', query);
-  console.log('With values:', [batch_number, product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id]);
+  console.log('With values:', [batch_number, product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id, drug_type_id]);
 
-  db.query(query, [batch_number, product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id], (err, results) => {
+  db.query(query, [batch_number, product_name, exp_date, purchase_price, sell_price, quantity, generic_id, cat_id, type_id, brand_id, supplier_id, drug_type_id], (err, results) => {
     if (err) {
       console.error('Error executing query:', err.message);
       console.error('SQL Error Code:', err.code);

@@ -1,7 +1,7 @@
 import React from 'react'
-import {SidebarAdmin} from '../components/side-bar-admin.jsx';
-//import { SidebarCashier} from '../components/side-bar-admin.jsx';
-//import { SidebarSupplier } from '../components/side-bar-admin.jsx';
+import { SidebarAdmin } from '../components/side-bar-admin.jsx';
+// import { SidebarCashier } from '../components/side-bar-admin.jsx';
+// import { SidebarSupplier } from '../components/side-bar-admin.jsx';
 import { NavLink } from "react-router-dom";
 
 const SidebarA = () => {
@@ -10,73 +10,59 @@ const SidebarA = () => {
 
   return (
     <React.Fragment>
-    <section >
-      <div className="text-white">
+      <section>
+        <div className="text-white">
           {
-               SidebarAdmin.map((item, index)=>{
-                return(
-                    <div key={index}>
-                        <NavLink to={item.path}
-                        className={({ isActive }) =>
-                        isActive ? activeLink: normalLink}
-                      
-                         >
-                        <span>{item.icon}</span>
-                        <span>{item.title}</span>
-                        </NavLink>
-                        
-                    </div>
-                )
-              })
+            SidebarAdmin.map((item, index) => {
+              return (
+                <div key={index}>
+                  <NavLink to={item.path}
+                    className={({ isActive }) =>
+                      isActive ? activeLink : normalLink}
+                  >
+                    <span className="icon">{item.icon}</span>
+                    <span className="title">{item.title}</span>
+                  </NavLink>
+                </div>
+              )
+            })
           }
 
+          {/* 
+          SidebarCashier.map((item, index) => {
+            return (
+              <div key={index}>
+                <NavLink to={item.path}
+                  className={({ isActive }) =>
+                    isActive ? activeLink : normalLink}
+                >
+                  <span className="icon">{item.icon}</span>
+                  <span className="title">{item.title}</span>
+                </NavLink>
+              </div>
+            )
+          })
+          */}
 
-
-          {/*
-               SidebarCashier.map((item, index)=>{
-                return(
-                    <div key={index}>
-                        <NavLink to={item.path}
-                        className={({ isActive }) =>
-                        isActive ? activeLink: normalLink}
-                      
-                         >
-                        <span>{item.icon}</span>
-                        <span>{item.title}</span>
-                        </NavLink>
-                        
-                    </div>
-                )
-              })
-            */}
-
-          {/*
-               SidebarSupplier.map((item, index)=>{
-                return(
-                    <div key={index}>
-                        <NavLink to={item.path}
-                        className={({ isActive }) =>
-                        isActive ? activeLink: normalLink}
-                      
-                         >
-                        <span>{item.icon}</span>
-                        <span>{item.title}</span>
-                        </NavLink>
-                        
-                    </div>
-                )
-              })
-            */}
-  
-  
-
-  
-      </div>
-    </section>
-  </React.Fragment>
+          {/* 
+          SidebarSupplier.map((item, index) => {
+            return (
+              <div key={index}>
+                <NavLink to={item.path}
+                  className={({ isActive }) =>
+                    isActive ? activeLink : normalLink}
+                >
+                  <span className="icon">{item.icon}</span>
+                  <span className="title">{item.title}</span>
+                </NavLink>
+              </div>
+            )
+          })
+          */}
+        </div>
+      </section>
+    </React.Fragment>
   )
 }
-
-
 
 export default SidebarA;

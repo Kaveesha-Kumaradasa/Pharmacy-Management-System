@@ -17,8 +17,8 @@ const SidebarC = () => {
                                 className={({ isActive }) =>
                                     isActive ? activeLink : normalLink}
                             >
-                                <span>{item.icon}</span>
-                                <span>{item.title}</span>
+                                <span className="icon">{item.icon}</span>
+                                <span className="title">{item.title}</span>
                             </NavLink>
                         </div>
                     ))}

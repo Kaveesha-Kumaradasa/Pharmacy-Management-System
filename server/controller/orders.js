@@ -57,11 +57,11 @@ export const createOrder = (req, res) => {
 export const getOrdersBySupplier = (req, res) => {
   const { supplier_id } = req.query;
   const user_id = req.headers['user-id'];
-  const role_id = req.headers['role-id'];
+  //const role_id = req.headers['role-id'];
 
-  if (role_id !== '3') {
-    return res.status(403).json({ error: 'Access denied' });
-  }
+  //if (role_id !== '3') {
+    //return res.status(403).json({ error: 'Access denied' });
+  //}
 
   console.log(`Received request for supplier_id: ${supplier_id} from user_id: ${user_id}`);
 
@@ -120,14 +120,14 @@ export const getOrdersBySupplier = (req, res) => {
 // controllers/orders.js
 
 export const getOrdersByAdmin = (req, res) => {
-  const user_id = req.headers['user-id'];
-  const role_id = req.headers['role-id'];
+  //const user_id = req.headers['user-id'];
+  //const role_id = req.headers['role-id'];
 
-  console.log(`Received request from user_id: ${user_id} with role_id: ${role_id}`);
+  //console.log(`Received request from user_id: ${user_id} with role_id: ${role_id}`);
 
-  if (role_id !== '1') {
-    return res.status(403).json({ error: 'Access denied' });
-  }
+  //if (role_id !== '1') {
+    //return res.status(403).json({ error: 'Access denied' });
+ //}
 
   const query = `
     SELECT 

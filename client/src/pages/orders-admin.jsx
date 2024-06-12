@@ -97,11 +97,23 @@ const OrdersAdmin = () => {
               box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
   
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+            }
+  
+            .header p {
+              margin: 0;
+              font-size: 16px;
+              color: #333;
+            }
+  
             .title {
               font-size: 24px;
               font-weight: 700;
               color: #333;
               margin-bottom: 20px;
+              text-align: center;
             }
   
             .subtitle {
@@ -111,16 +123,16 @@ const OrdersAdmin = () => {
               margin-bottom: 10px;
             }
   
-            .order-details {
-              margin-bottom: 30px;
-            }
-  
-            .product-list {
+            .order-details, .product-list {
               margin-bottom: 20px;
             }
   
             .product-item {
               margin-bottom: 10px;
+              display: flex;
+              justify-content: space-between;
+              border-bottom: 1px solid #eee;
+              padding-bottom: 10px;
             }
   
             .product-name {
@@ -135,14 +147,19 @@ const OrdersAdmin = () => {
         </head>
         <body>
           <div class="container">
+            <div class="header">
+              <p><strong>NIROGYA PHARMACY</strong></p>
+              <p>NO:83 MEENNANA, GETAHETTA</p>
+              <p>TEL: 077 2515537</p>
+            </div>
             <div class="title">Order Details</div>
             <div class="order-details">
-              <div class="subtitle">Order ID:</div>
-              <div>${order.order_id}</div>
-              <div class="subtitle">Supplier Name:</div>
-              <div>${order.supplier_name}</div>
-              <div class="subtitle">Order Date:</div>
-              <div>${new Date(order.date).toLocaleString()}</div>
+              <div class="subtitle">Order ID:
+              ${order.order_id}
+              <div class="subtitle">Supplier Name:
+              ${order.supplier_name}
+              <div class="subtitle">Order Date:
+              ${new Date(order.date).toLocaleString()}
             </div>
             <div class="product-list">
               <div class="subtitle">Products:</div>
@@ -152,11 +169,6 @@ const OrdersAdmin = () => {
                   <div>Quantity: ${product.quantity}</div>
                 </div>
               `).join('')}
-            </div>
-            <div class="footer">
-              <p>NIROGYA PHARMCY</p>
-              <p>NO: MEENNANA ,GETAHETTA</p>
-              <p>TEL : 077 2515537</p>
             </div>
           </div>
         </body>
@@ -168,11 +180,12 @@ const OrdersAdmin = () => {
     newWindow.document.close();
     newWindow.print();
   };
-
+  
   return (
     <div className="p-4">
-      <h1 className="text-2xl mb-4">Admin Interface - Pharmacy Management System</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Orders</h1>
       <div className="mb-4">
+      <h3 className="text-3xl font-bold mb-6 text-gray-800">Create an Orders</h3>
         <label className="block mb-2">Select Supplier</label>
         <select
           onChange={e => setSelectedSupplier(e.target.value)}
@@ -210,7 +223,7 @@ const OrdersAdmin = () => {
         </div>
       )}
 
-      <h2 className="text-xl mt-8">Orders</h2>
+<h3 className="text-3xl font-bold mb-6 text-gray-800">Orders</h3>
       <div className="grid grid-cols-1 gap-4 mt-4">
         {orders.map(order => (
           <div key={order.order_id} className="border p-4 rounded">

@@ -58,6 +58,7 @@ const ProductList = () => {
 
   return (
     <div className="p-4">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Product List</h1>
       <div className="flex justify-between mb-6">
         <div className="relative">
           <FontAwesomeIcon icon={faFilter} className="absolute left-3 top-3 text-gray-400" />
@@ -73,6 +74,7 @@ const ProductList = () => {
             <option value="dosage_type">Dosage</option>
             <option value="brand">Brand</option>
             <option value="supplier">Supplier</option>
+            <option value="drug_type">Drug Type</option>
           </select>
         </div>
         <div className="relative">
@@ -107,6 +109,7 @@ const ProductList = () => {
               <th className="py-3 px-6 text-left">Dosage Type</th>
               <th className="py-3 px-6 text-left">Brand</th>
               <th className="py-3 px-6 text-left">Supplier</th>
+              <th className="py-3 px-6 text-left">Drug Type</th>
               <th className="py-3 px-6 text-left">Actions</th>
             </tr>
           </thead>
@@ -124,6 +127,7 @@ const ProductList = () => {
                 <td className="py-3 px-6 border-b">{product.dosage_type}</td>
                 <td className="py-3 px-6 border-b">{product.brand}</td>
                 <td className="py-3 px-6 border-b">{product.supplier}</td>
+                <td className="py-3 px-6 border-b">{product.drug_type}</td>
                 <td className="py-3 px-6 border-b">
                   <button
                     onClick={() => handleEditClick(product.product_id)}
