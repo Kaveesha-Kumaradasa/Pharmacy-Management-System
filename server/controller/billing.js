@@ -86,7 +86,7 @@ export const createBill = (req, res) => {
                   });
 
                   // Get the cashier name
-                  const getCashierNameQuery = 'SELECT name FROM users WHERE role_id = 2';
+                  const getCashierNameQuery = 'SELECT name FROM users WHERE role_id = 2 AND user_id = ?';
                   db.query(getCashierNameQuery, [user_id], (err, userResult) => {
                     if (err) {
                       db.rollback(() => {
@@ -135,4 +135,3 @@ export const getProducts = (req, res) => {
     res.json(results);
   });
 };
-

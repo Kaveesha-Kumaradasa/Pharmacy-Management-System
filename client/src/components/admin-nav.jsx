@@ -7,6 +7,7 @@ import OrdersAdmin from "../pages/orders-admin";
 import MedicineAdmin from "../pages/medicine-admin";  
 import Notification from "../pages/notification";
 import Reports from "../pages/Reports";
+import AddAll from "../pages/others";
 
 
 
@@ -23,6 +24,7 @@ function AdminNav() {
           <Route path="/users" element={<Users />} />
           <Route path="/notification" element={<Notification />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/add-all" element={<AddAll />} />
         </Routes>
       </section>
     </React.Fragment>

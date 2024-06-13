@@ -10,6 +10,8 @@ const EditUserForm = ({ user, onClose }) => {
         address: '',
         username: '',
     });
+    
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (user) {
@@ -30,8 +32,32 @@ const EditUserForm = ({ user, onClose }) => {
         });
     };
 
+    const validate = () => {
+        const errors = {};
+        if (!formData.name) errors.name = 'Name is required';
+        if (!formData.email) {
+            errors.email = 'Email is required';
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            errors.email = 'Email address is invalid';
+        }
+        if (!formData.phone_number) {
+            errors.phone_number = 'Phone number is required';
+        } else if (!/^\d{10}$/.test(formData.phone_number)) {
+            errors.phone_number = 'Phone number must be 10 digits';
+        }
+        if (!formData.address) errors.address = 'Address is required';
+        if (!formData.username) errors.username = 'Username is required';
+        return errors;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
         try {
             await axios.put(`http://localhost:8800/server/users/users/${user.user_id}`, formData);
             onClose();
@@ -54,6 +80,7 @@ const EditUserForm = ({ user, onClose }) => {
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
+                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                     </div>
                     <div className="mb-4">
                         <label className="block text-sm font-bold mb-2">Email</label>
@@ -64,6 +91,7 @@ const EditUserForm = ({ user, onClose }) => {
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
+                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                     </div>
                     <div className="mb-4">
                         <label className="block text-sm font-bold mb-2">Phone Number</label>
@@ -74,6 +102,7 @@ const EditUserForm = ({ user, onClose }) => {
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
+                        {errors.phone_number && <p className="text-red-500 text-xs mt-1">{errors.phone_number}</p>}
                     </div>
                     <div className="mb-4">
                         <label className="block text-sm font-bold mb-2">Address</label>
@@ -84,6 +113,7 @@ const EditUserForm = ({ user, onClose }) => {
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
+                        {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
                     </div>
                     <div className="mb-4">
                         <label className="block text-sm font-bold mb-2">Username</label>
@@ -94,6 +124,7 @@ const EditUserForm = ({ user, onClose }) => {
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
+                        {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
                     </div>
                     <div className="flex justify-end">
                         <button

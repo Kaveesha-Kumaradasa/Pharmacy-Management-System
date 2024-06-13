@@ -1,4 +1,4 @@
-import { FaPills, FaShoppingCart, FaUsers, FaClipboardList, FaBell } from 'react-icons/fa';
+import { FaPills, FaShoppingCart, FaUsers, FaClipboardList, FaBell, FaPlusSquare } from 'react-icons/fa';
 import { MdLocalPharmacy, MdDashboard } from 'react-icons/md';
 import { HiOutlineDocumentReport } from 'react-icons/hi';
 
@@ -37,6 +37,11 @@ export const SidebarAdmin = [
     title: "Notification",
     path: "/admin/notification",
     icon: <FaBell />
+  },
+  {
+    title: "Add All",
+    path: "/admin/add-all",
+    icon: <FaPlusSquare />
   },
 ]
 

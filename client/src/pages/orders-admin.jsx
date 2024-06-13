@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const OrdersAdmin = () => {
   const [suppliers, setSuppliers] = useState([]);
-  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [createOrderSupplier, setCreateOrderSupplier] = useState('');
+  const [selectedSupplier, setSelectedSupplier] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
   const [products, setProducts] = useState([]);
   const [orderItems, setOrderItems] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -15,16 +18,16 @@ const OrdersAdmin = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedSupplier) {
-      axios.get(`http://localhost:8800/server/orders/products?supplier_id=${selectedSupplier}`)
+    if (createOrderSupplier) {
+      axios.get(`http://localhost:8800/server/orders/products?supplier_id=${createOrderSupplier}`)
         .then(response => setProducts(response.data))
         .catch(error => console.error('Error fetching products:', error));
     }
-  }, [selectedSupplier]);
+  }, [createOrderSupplier]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [selectedSupplier, selectedYear, selectedMonth]);
 
   const fetchOrders = () => {
     const userId = localStorage.getItem('user_id');
@@ -34,6 +37,11 @@ const OrdersAdmin = () => {
       headers: {
         'user-id': userId,
         'role-id': roleId
+      },
+      params: {
+        supplier_id: selectedSupplier,
+        year: selectedYear,
+        month: selectedMonth
       }
     })
       .then(response => setOrders(response.data))
@@ -54,7 +62,7 @@ const OrdersAdmin = () => {
   };
 
   const handleSubmit = () => {
-    axios.post('http://localhost:8800/server/orders/orders', { supplierId: selectedSupplier, products: orderItems })
+    axios.post('http://localhost:8800/server/orders/orders', { supplierId: createOrderSupplier, products: orderItems })
       .then(response => {
         if (response.data.message) {
           alert(response.data.message);
@@ -154,12 +162,9 @@ const OrdersAdmin = () => {
             </div>
             <div class="title">Order Details</div>
             <div class="order-details">
-              <div class="subtitle">Order ID:
-              ${order.order_id}
-              <div class="subtitle">Supplier Name:
-              ${order.supplier_name}
-              <div class="subtitle">Order Date:
-              ${new Date(order.date).toLocaleString()}
+              <div class="subtitle">Order ID: ${order.order_id}</div>
+              <div class="subtitle">Supplier Name: ${order.supplier_name}</div>
+              <div class="subtitle">Order Date: ${new Date(order.date).toLocaleString()}</div>
             </div>
             <div class="product-list">
               <div class="subtitle">Products:</div>
@@ -180,84 +185,132 @@ const OrdersAdmin = () => {
     newWindow.document.close();
     newWindow.print();
   };
-  
-  return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Orders</h1>
-      <div className="mb-4">
-      <h3 className="text-3xl font-bold mb-6 text-gray-800">Create an Orders</h3>
-        <label className="block mb-2">Select Supplier</label>
-        <select
-          onChange={e => setSelectedSupplier(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="">Select Supplier</option>
-          {suppliers.map(supplier => (
-            <option key={supplier.user_id} value={supplier.user_id}>{supplier.name}</option>
-          ))}
-        </select>
-      </div>
-      {selectedSupplier && (
-        <div>
-          <h2 className="text-xl mb-4">Products</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {products.map(product => (
-              <div key={product.product_id} className="border p-4 rounded">
-                <div className="mb-2">{product.product_name}</div>
-                <input
-                  type="number"
-                  min="1"
-                  placeholder="Quantity"
-                  onChange={e => handleQuantityChange(product.product_id, e.target.value)}
-                  className="p-2 border rounded w-full"
-                />
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={handleSubmit}
-            className="mt-4 p-2 bg-blue-500 text-white rounded"
-          >
-            Send Order
-          </button>
-        </div>
-      )}
 
-<h3 className="text-3xl font-bold mb-6 text-gray-800">Orders</h3>
-      <div className="grid grid-cols-1 gap-4 mt-4">
-        {orders.map(order => (
-          <div key={order.order_id} className="border p-4 rounded">
-            <div><strong>Order ID:</strong> {order.order_id}</div>
-            <div><strong>Supplier Name:</strong> {order.supplier_name}</div>
-            <div><strong>Order Date:</strong> {new Date(order.date).toLocaleString()}</div>
-            <div><strong>Order Status:</strong> {order.status}</div>
-            {order.status && <div><strong>Delivery Status:</strong> {order.status}</div>} {/* Display delivery status if available */}
-            <div>
-              <strong>Products:</strong>
-              <ul>
-                {order.products.map(product => (
-                  <li key={product.product_id}>
-                    {product.product_name} - Quantity: {product.quantity}
-                  </li>
-                ))}
-              </ul>
+  return (
+    <div className="p-8 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Orders</h1>
+
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Create an Order</h2>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Select Supplier</label>
+          <select
+            onChange={e => setCreateOrderSupplier(e.target.value)}
+            value={createOrderSupplier}
+            className="p-2 border border-gray-300 rounded w-full"
+          >
+            <option value="">Select Supplier</option>
+            {suppliers.map(supplier => (
+              <option key={supplier.user_id} value={supplier.user_id}>{supplier.name}</option>
+            ))}
+          </select>
+        </div>
+        {createOrderSupplier && (
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-gray-700">Products</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {products.map(product => (
+                <div key={product.product_id} className="border p-4 rounded-lg shadow-sm">
+                  <div className="mb-2 font-medium text-gray-800">{product.product_name}</div>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Quantity"
+                    onChange={e => handleQuantityChange(product.product_id, e.target.value)}
+                    className="p-2 border border-gray-300 rounded w-full"
+                  />
+                </div>
+              ))}
             </div>
-            {order.status !== 'delivered' && (
-              <button
-                onClick={() => handleDeliveryStatus(order.order_id)}
-                className="mt-2 p-2 bg-green-500 text-white rounded"
-              >
-                Mark as Delivered
-              </button>
-            )}
             <button
-              onClick={() => printOrderDetails(order)}
-              className="mt-2 p-2 bg-blue-500 text-white rounded"
+              onClick={handleSubmit}
+              className="mt-4 p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              Print Order Details
+              Send Order
             </button>
           </div>
-        ))}
+        )}
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">View Orders</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select Supplier</label>
+            <select
+              onChange={e => setSelectedSupplier(e.target.value)}
+              value={selectedSupplier}
+              className="p-2 border border-gray-300 rounded w-full"
+            >
+              <option value="">All Suppliers</option>
+              {suppliers.map(supplier => (
+                <option key={supplier.user_id} value={supplier.user_id}>{supplier.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select Year</label>
+            <select
+              onChange={e => setSelectedYear(e.target.value)}
+              value={selectedYear}
+              className="p-2 border border-gray-300 rounded w-full"
+            >
+              <option value="">All Years</option>
+              {[2023, 2024, 2025].map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select Month</label>
+            <select
+              onChange={e => setSelectedMonth(e.target.value)}
+              value={selectedMonth}
+              className="p-2 border border-gray-300 rounded w-full"
+            >
+              <option value="">All Months</option>
+              {['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map(month => (
+                <option key={month} value={month}>{month}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-4 mt-4">
+          {orders.map(order => (
+            <div key={order.order_id} className="border p-4 rounded-lg shadow-sm">
+              <div className="mb-2"><strong>Order ID:</strong> {order.order_id}</div>
+              <div className="mb-2"><strong>Supplier Name:</strong> {order.supplier_name}</div>
+              <div className="mb-2"><strong>Order Date:</strong> {new Date(order.date).toLocaleString()}</div>
+              <div className="mb-2"><strong>Order Status:</strong> {order.status}</div>
+              {order.status && <div className="mb-2"><strong>Delivery Status:</strong> {order.status}</div>}
+              <div>
+                <strong>Products:</strong>
+                <ul className="list-disc ml-5">
+                  {order.products.map(product => (
+                    <li key={product.product_id}>
+                      {product.product_name} - Quantity: {product.quantity}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {order.status !== 'delivered' && (
+                <button
+                  onClick={() => handleDeliveryStatus(order.order_id)}
+                  className="mt-4 p-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Mark as Delivered
+                </button>
+              )}
+              <button
+                onClick={() => printOrderDetails(order)}
+                className="mt-4 p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Print Order Details
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

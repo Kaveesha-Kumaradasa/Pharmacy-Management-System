@@ -10,6 +10,7 @@ import notificationRoutes from './routes/notification.js'
 import orderRoutes from './routes/orders.js';
 import dashboardRoutes from './routes/dashboard.js';
 import reportRoutes from './routes/reports.js';
+import othersRoutes from './routes/others.js';
 import { Server } from 'socket.io';
 import http from 'http';
 
@@ -31,6 +32,8 @@ app.use('/server/notification',notificationRoutes);
 app.use('/server/orders',orderRoutes);
 app.use('/server/dashboard',dashboardRoutes);
 app.use('/server/reports',reportRoutes);
+app.use('/server/others',othersRoutes);
+
 
 // Listen for connections and disconnections
 io.on('connection', (socket) => {

@@ -65,7 +65,7 @@ const Bill = () => {
   const generateInvoice = async () => {
     const token = localStorage.getItem('token');
     const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode the token
-    const userId = decodedToken.user_id;
+    const userId = decodedToken.id;
 
     const billDetails = {
       date: invoiceDate,

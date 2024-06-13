@@ -15,6 +15,7 @@ function Register() {
 
   const [roles, setRoles] = useState([]);
   const [errors, setErrors] = useState({});
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     axios.get('http://localhost:8800/server/auth/roles')
@@ -49,7 +50,19 @@ function Register() {
     event.preventDefault();
     if (validate()) {
       axios.post('http://localhost:8800/server/auth/register', values)
-        .then(res => console.log(res))
+        .then(res => {
+          console.log(res);
+          setSuccess(true);
+          setValues({
+            name: '',
+            email: '',
+            phone_number: '',
+            address: '',
+            username: '',
+            password: '',
+            role_id: ''
+          });
+        })
         .catch(err => console.error(err));
     }
   };
@@ -66,35 +79,40 @@ function Register() {
           Add users here
         </h2>
       </div>
+      {success && (
+        <div className="mb-4 text-green-600 font-semibold">
+          User added successfully!
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="mt-8 space-y-6 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <div>
           <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">Name</label>
-          <input type="text" id="name" name="name" onChange={handleChange} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
+          <input type="text" id="name" name="name" onChange={handleChange} value={values.name} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
           {errors.name && <div className="text-red-500 text-sm">{errors.name}</div>}
         </div>
         <div>
           <label htmlFor="email" className="block text-gray-700 font-semibold mb-2">Email</label>
-          <input type="email" id="email" name="email" onChange={handleChange} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
+          <input type="email" id="email" name="email" onChange={handleChange} value={values.email} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
           {errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
         </div>
         <div>
           <label htmlFor="phone_number" className="block text-gray-700 font-semibold mb-2">Phone Number</label>
-          <input type="tel" id="phone_number" name="phone_number" onChange={handleChange} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
+          <input type="tel" id="phone_number" name="phone_number" onChange={handleChange} value={values.phone_number} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
           {errors.phone_number && <div className="text-red-500 text-sm">{errors.phone_number}</div>}
         </div>
         <div>
           <label htmlFor="address" className="block text-gray-700 font-semibold mb-2">Address</label>
-          <input type="text" id="address" name="address" onChange={handleChange} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
+          <input type="text" id="address" name="address" onChange={handleChange} value={values.address} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
           {errors.address && <div className="text-red-500 text-sm">{errors.address}</div>}
         </div>
         <div>
           <label htmlFor="username" className="block text-gray-700 font-semibold mb-2">Preferred username</label>
-          <input type="text" id="username" name="username" onChange={handleChange} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
+          <input type="text" id="username" name="username" onChange={handleChange} value={values.username} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
           {errors.username && <div className="text-red-500 text-sm">{errors.username}</div>}
         </div>
         <div>
           <label htmlFor="password" className="block text-gray-700 font-semibold mb-2">Password</label>
-          <input type="password" id="password" name="password" onChange={handleChange} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
+          <input type="password" id="password" name="password" onChange={handleChange} value={values.password} required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"/>
           {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
         </div>
         <div>
@@ -103,6 +121,7 @@ function Register() {
             id="role_id"
             name="role_id"
             onChange={handleChange}
+            value={values.role_id}
             required
             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-"
           >

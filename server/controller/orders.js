@@ -119,17 +119,12 @@ export const getOrdersBySupplier = (req, res) => {
 
 // controllers/orders.js
 
+// controllers/orders.js
+
 export const getOrdersByAdmin = (req, res) => {
-  //const user_id = req.headers['user-id'];
-  //const role_id = req.headers['role-id'];
+  const { supplier_id, year, month } = req.query;
 
-  //console.log(`Received request from user_id: ${user_id} with role_id: ${role_id}`);
-
-  //if (role_id !== '1') {
-    //return res.status(403).json({ error: 'Access denied' });
- //}
-
-  const query = `
+  let query = `
     SELECT 
       orders.order_id, 
       orders.supplier_id,
@@ -147,11 +142,29 @@ export const getOrdersByAdmin = (req, res) => {
       product ON order_detail.product_id = product.product_id
     JOIN
       users ON orders.supplier_id = users.user_id
-    ORDER BY 
-      orders.order_id DESC
+    WHERE 1=1
   `;
 
-  db.query(query, (err, results) => {
+  const params = [];
+
+  if (supplier_id) {
+    query += ' AND orders.supplier_id = ?';
+    params.push(supplier_id);
+  }
+
+  if (year) {
+    query += ' AND YEAR(orders.date) = ?';
+    params.push(year);
+  }
+
+  if (month) {
+    query += ' AND MONTH(orders.date) = ?';
+    params.push(month);
+  }
+
+  query += ' ORDER BY orders.order_id DESC';
+
+  db.query(query, params, (err, results) => {
     if (err) {
       console.error('Error fetching orders for admin:', err);
       res.status(500).json({ error: err.message });
@@ -180,6 +193,7 @@ export const getOrdersByAdmin = (req, res) => {
     }
   });
 };
+
 
 
 // controllers/orders.js

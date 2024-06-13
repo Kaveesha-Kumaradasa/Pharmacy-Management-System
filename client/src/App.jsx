@@ -6,7 +6,6 @@ import Register from './pages/register';
 import AdminPg from './pages/admin-pg';
 import CashierPg from './pages/cashier-pg';
 import SupplierPg from './pages/supplier-pg';
-import Landing from './pages/landing';
 //import React from 'react';
 
 function App() {
@@ -15,7 +14,6 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/landing" element={<Landing />} />
         <Route path="/admin/*" element={<AdminPg />} />
         <Route path="/cashier/*" element={<CashierPg />} />
         <Route path="/supplier/*" element={<SupplierPg />} />

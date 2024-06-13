@@ -93,7 +93,7 @@ function Reports() {
 
   return (
     <div className="container mx-auto mt-10 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Supplier List</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Reports</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
           <label className="block text-gray-700">Year:</label>
@@ -116,12 +116,6 @@ function Reports() {
           />
         </div>
       </div>
-      <button 
-        className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
-        onClick={generateReports}
-      >
-        Generate Reports
-      </button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
         {topItemsReport.length > 0 && (
