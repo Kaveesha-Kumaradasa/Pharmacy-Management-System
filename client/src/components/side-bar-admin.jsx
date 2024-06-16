@@ -39,7 +39,7 @@ export const SidebarAdmin = [
     icon: <FaBell />
   },
   {
-    title: "Add All",
+    title: "Add",
     path: "/admin/add-all",
     icon: <FaPlusSquare />
   },
